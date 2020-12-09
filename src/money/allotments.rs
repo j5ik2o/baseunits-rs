@@ -6,6 +6,7 @@ use rust_fp_categories::empty::Empty;
 use rust_fp_categories::semigroup::Semigroup;
 
 use crate::money::Allotment;
+use rust_fp_categories::monoid::Monoid;
 
 #[derive(Debug, Clone)]
 pub struct Allotments<T>(HashSet<Allotment<T>>);
@@ -30,12 +31,14 @@ impl<T: Clone + Eq + Hash> Semigroup for Allotments<T> {
   }
 }
 
+impl<T: Clone + Eq + Hash> Monoid for Allotments<T> {}
+
 impl<T: Clone + Eq + Hash> Allotments<T> {
   pub fn new(values: HashSet<Allotment<T>>) -> Self {
     Self(values)
   }
 
-  pub fn negated(self) -> Self {
+  pub fn negated(&self) -> Self {
     let values = self
       .0
       .iter()
@@ -45,7 +48,7 @@ impl<T: Clone + Eq + Hash> Allotments<T> {
     Self::new(values)
   }
 
-  pub fn filter<F>(self, f: F) -> Self
+  pub fn filter<F>(&self, f: F) -> Self
   where
     F: Fn(&Allotment<T>) -> bool,
   {
@@ -58,7 +61,7 @@ impl<T: Clone + Eq + Hash> Allotments<T> {
     Self(values)
   }
 
-  pub fn find<F>(self, f: F) -> Option<Allotment<T>>
+  pub fn find<F>(&self, f: F) -> Option<Allotment<T>>
   where
     F: Fn(&Allotment<T>) -> bool,
   {
