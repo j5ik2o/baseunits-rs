@@ -8,6 +8,7 @@ use rust_fp_categories::empty::Empty;
 use rust_fp_categories::monoid::Monoid;
 use rust_fp_categories::semigroup::Semigroup;
 use std::str::FromStr;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Money {
@@ -18,6 +19,15 @@ pub struct Money {
 #[derive(Debug, PartialEq)]
 pub enum MoneyError {
   NotSameCurrencyError,
+}
+
+impl Eq for Money {}
+
+impl Hash for Money {
+  fn hash<H: Hasher>(&self, state: &mut H) {
+    self.amount.hash(state);
+    state.write_u32(self.currency.num());
+  }
 }
 
 impl PartialOrd for Money {
