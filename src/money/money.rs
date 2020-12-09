@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use bigdecimal::{BigDecimal, Zero};
+use bigdecimal::{BigDecimal, Zero, FromPrimitive};
 use iso_4217::CurrencyCode;
 use num_bigint::BigInt;
 use rust_fp_categories::empty::Empty;
@@ -158,6 +158,18 @@ impl Money {
       amount: a,
       currency,
     }
+  }
+
+  pub fn dollars(amount: BigDecimal) -> Self {
+    Self::new(amount, CurrencyCode::USD)
+  }
+
+  pub fn dollars_i32(amount: i32) -> Self {
+    Self::dollars(BigDecimal::from_i32(amount).unwrap())
+  }
+
+  pub fn dollars_f32(amount: f32) -> Self {
+    Self::dollars(BigDecimal::from_f32(amount).unwrap())
   }
 
   pub fn zero(currency: CurrencyCode) -> Self {
