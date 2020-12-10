@@ -3,12 +3,16 @@ name = "baseunits-rs"
 version = "0.1.0"
 authors = ["Junichi Kato <j5ik2o@gmail.com>"]
 edition = "2018"
+homepage = "https://github.com/j5ik2o/baseunits-rs"
+readme = "README.md"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bigdecimal = "0.2.0"
+rust_decimal = "1.8.1"
 iso-4217 = "0.1"
 num-bigint = "0.3"
 rust-fp-categories = "0.0.3"
-
+time = { version = "0.1.43" }
+chrono = "0.4"

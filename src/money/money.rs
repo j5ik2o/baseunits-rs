@@ -1,18 +1,18 @@
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::str::FromStr;
 
-use bigdecimal::{BigDecimal, Zero, FromPrimitive};
 use iso_4217::CurrencyCode;
-use num_bigint::BigInt;
+use rust_decimal::Decimal;
 use rust_fp_categories::empty::Empty;
 use rust_fp_categories::monoid::Monoid;
 use rust_fp_categories::semigroup::Semigroup;
-use std::str::FromStr;
-use std::hash::{Hash, Hasher};
+use rust_decimal::prelude::{FromPrimitive, Zero};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Money {
-  pub amount: BigDecimal,
+  pub amount: Decimal,
   pub currency: CurrencyCode,
 }
 
@@ -94,18 +94,18 @@ impl Sub for Money {
   }
 }
 
-impl Mul<BigDecimal> for Money {
+impl Mul<Decimal> for Money {
   type Output = Money;
 
-  fn mul(self, rhs: BigDecimal) -> Self::Output {
+  fn mul(self, rhs: Decimal) -> Self::Output {
     Money::times(self, rhs)
   }
 }
 
-impl Div<BigDecimal> for Money {
+impl Div<Decimal> for Money {
   type Output = Money;
 
-  fn div(self, rhs: BigDecimal) -> Self::Output {
+  fn div(self, rhs: Decimal) -> Self::Output {
     Money::divided_by(self, rhs)
   }
 }
@@ -118,22 +118,15 @@ impl Neg for Money {
   }
 }
 
-impl From<(BigDecimal, CurrencyCode)> for Money {
-  fn from((amount, currency): (BigDecimal, CurrencyCode)) -> Self {
+impl From<(Decimal, CurrencyCode)> for Money {
+  fn from((amount, currency): (Decimal, CurrencyCode)) -> Self {
     Money::new(amount, currency)
-  }
-}
-
-impl From<(BigInt, CurrencyCode)> for Money {
-  fn from((amount, currency): (BigInt, CurrencyCode)) -> Self {
-    let a = BigDecimal::from((amount, currency.digit().map(|v| v as i64).unwrap_or(0i64)));
-    Money::new(a, currency)
   }
 }
 
 impl From<(&str, CurrencyCode)> for Money {
   fn from((amount, currency): (&str, CurrencyCode)) -> Self {
-    let a = BigDecimal::from_str(amount).unwrap_or_else(|err| panic!("{}", err));
+    let a = Decimal::from_str(amount).unwrap();
     Money::new(a, currency)
   }
 }
@@ -142,7 +135,8 @@ macro_rules! from_numeric_impl {
   ($($t:ty)*) => ($(
     impl From<($t, CurrencyCode)> for Money {
       fn from((amount, currency): ($t, CurrencyCode)) -> Self {
-        let a = BigDecimal::from(amount).with_scale(currency.digit().map(|v| v as i64).unwrap_or(0i64));
+        let mut a = Decimal::from(amount);
+        a.rescale(currency.digit().unwrap() as u32);
         Money::new(a, currency)
       }
     }
@@ -152,28 +146,30 @@ macro_rules! from_numeric_impl {
 from_numeric_impl! {i8 i16 i32 i64 u8 u16 u32 u64}
 
 impl Money {
-  pub fn new(amount: BigDecimal, currency: CurrencyCode) -> Self {
-    let a = amount.with_scale(currency.digit().map(|v| v as i64).unwrap_or(0i64));
+  pub fn new(amount: Decimal, currency: CurrencyCode) -> Self {
+    let mut a = amount.clone();
+
+    a.rescale(currency.digit().unwrap() as u32);
     Self {
       amount: a,
       currency,
     }
   }
 
-  pub fn dollars(amount: BigDecimal) -> Self {
+  pub fn dollars(amount: Decimal) -> Self {
     Self::new(amount, CurrencyCode::USD)
   }
 
   pub fn dollars_i32(amount: i32) -> Self {
-    Self::dollars(BigDecimal::from_i32(amount).unwrap())
+    Self::dollars(Decimal::from_i32(amount).unwrap())
   }
 
   pub fn dollars_f32(amount: f32) -> Self {
-    Self::dollars(BigDecimal::from_f32(amount).unwrap())
+    Self::dollars(Decimal::from_f32(amount).unwrap())
   }
 
   pub fn zero(currency: CurrencyCode) -> Self {
-    Self::new(BigDecimal::zero(), currency)
+    Self::new(Decimal::zero(), currency)
   }
 
   pub fn abs(&self) -> Self {
@@ -184,11 +180,11 @@ impl Money {
   }
 
   pub fn is_positive(&self) -> bool {
-    self.amount > BigDecimal::zero()
+    self.amount > Decimal::zero()
   }
 
   pub fn is_negative(&self) -> bool {
-    self.amount < BigDecimal::zero()
+    self.amount < Decimal::zero()
   }
 
   pub fn is_zero(&self) -> bool {
@@ -217,14 +213,14 @@ impl Money {
     self.add(other.negated())
   }
 
-  pub fn times(self, factor: BigDecimal) -> Self {
+  pub fn times(self, factor: Decimal) -> Self {
     Self {
       amount: self.amount * factor,
       currency: self.currency,
     }
   }
 
-  pub fn divided_by(self, divisor: BigDecimal) -> Self {
+  pub fn divided_by(self, divisor: Decimal) -> Self {
     Self {
       amount: self.amount / divisor,
       currency: self.currency,
@@ -234,10 +230,10 @@ impl Money {
 
 #[cfg(test)]
 mod tests {
-  use bigdecimal::BigDecimal;
   use iso_4217::CurrencyCode;
-
+  use rust_decimal::Decimal;
   use crate::money::{Money, MoneyError};
+  use rust_decimal::prelude::{Zero, FromPrimitive};
 
   #[test]
   fn test_eq() -> Result<(), MoneyError> {
@@ -258,15 +254,15 @@ mod tests {
   #[test]
   fn test_zero() -> Result<(), MoneyError> {
     let m1 = Money::zero(CurrencyCode::USD);
-    let m2 = Money::new(BigDecimal::from(0), CurrencyCode::USD);
+    let m2 = Money::new(Decimal::zero(), CurrencyCode::USD);
     assert_eq!(m1.abs(), m2);
     Ok(())
   }
 
   #[test]
   fn test_abs() -> Result<(), MoneyError> {
-    let m1 = Money::new(BigDecimal::from(-1), CurrencyCode::USD);
-    let m2 = Money::new(BigDecimal::from(1), CurrencyCode::USD);
+    let m1 = Money::new(Decimal::from_i32(-1).unwrap(), CurrencyCode::USD);
+    let m2 = Money::new(Decimal::from_i32(1).unwrap(), CurrencyCode::USD);
     assert_eq!(m1.abs(), m2);
     Ok(())
   }
@@ -281,8 +277,14 @@ mod tests {
     let m5 = m1.add(m2)?;
     let m6 = m3 + m4;
 
-    assert_eq!(m5, Money::new(BigDecimal::from(3), CurrencyCode::USD));
-    assert_eq!(m6, Money::new(BigDecimal::from(3), CurrencyCode::USD));
+    assert_eq!(
+      m5,
+      Money::new(Decimal::from_i32(3).unwrap(), CurrencyCode::USD)
+    );
+    assert_eq!(
+      m6,
+      Money::new(Decimal::from_i32(3).unwrap(), CurrencyCode::USD)
+    );
     Ok(())
   }
 }
