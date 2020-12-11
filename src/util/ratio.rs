@@ -60,10 +60,12 @@ impl Ratio {
 
 #[cfg(test)]
 mod tests {
-  use crate::util::Ratio;
+  extern crate test;
+  use super::*;
   use std::str::FromStr;
   use rust_decimal::prelude::*;
   use rust_decimal::Decimal;
+  use test::Bencher;
 
   #[test]
   fn test_big_decimal_ratio() {

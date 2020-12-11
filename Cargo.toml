@@ -16,3 +16,10 @@ num-bigint = "0.3"
 rust-fp-categories = "0.0.3"
 time = { version = "0.1.43" }
 chrono = "0.4"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "bench_main"
+harness = false
