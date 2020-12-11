@@ -1,29 +1,79 @@
 use crate::time::time_unit_conversion_factor::TimeUnitConversionFactor;
+use num::ToPrimitive;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TimeUnitType {
-  Nanoseconds,
-  Microseconds,
-  Milliseconds,
-  Seconds,
-  Minutes,
-  Hours,
-  Days,
-  Weeks,
-  Months,
-  Quarters,
-  Years,
+  Millisecond,
+  Second,
+  Minute,
+  Hour,
+  Day,
+  Week,
+  Month,
+  Quarter,
+  Year = 9,
+}
+
+impl ToString for TimeUnitType {
+  fn to_string(&self) -> String {
+    match *self {
+      TimeUnitType::Millisecond => "millisecond".to_string(),
+      TimeUnitType::Second => "second".to_string(),
+      TimeUnitType::Minute => "minute".to_string(),
+      TimeUnitType::Hour => "hour".to_string(),
+      TimeUnitType::Day => "day".to_string(),
+      TimeUnitType::Week => "week".to_string(),
+      TimeUnitType::Month => "month".to_string(),
+      TimeUnitType::Quarter => "quarter".to_string(),
+      TimeUnitType::Year => "year".to_string(),
+    }
+  }
+}
+
+impl ToPrimitive for TimeUnitType {
+  fn to_i64(&self) -> Option<i64> {
+    match *self {
+      TimeUnitType::Millisecond => Some(1),
+      TimeUnitType::Second => Some(2),
+      TimeUnitType::Minute => Some(3),
+      TimeUnitType::Hour => Some(4),
+      TimeUnitType::Day => Some(5),
+      TimeUnitType::Week => Some(6),
+      TimeUnitType::Month => Some(7),
+      TimeUnitType::Quarter => Some(8),
+      TimeUnitType::Year => Some(9),
+    }
+  }
+
+  fn to_u64(&self) -> Option<u64> {
+    match *self {
+      TimeUnitType::Millisecond => Some(1),
+      TimeUnitType::Second => Some(2),
+      TimeUnitType::Minute => Some(3),
+      TimeUnitType::Hour => Some(4),
+      TimeUnitType::Day => Some(5),
+      TimeUnitType::Week => Some(6),
+      TimeUnitType::Month => Some(7),
+      TimeUnitType::Quarter => Some(8),
+      TimeUnitType::Year => Some(9),
+    }
+  }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TimeUnit {
-  pub name: &'static str,
+  name: &'static str,
   value_type: TimeUnitType,
   value_base_type: TimeUnitType,
   factor: TimeUnitConversionFactor,
 }
 
 impl TimeUnit {
+  /// このユニットの名前を返す。
+  pub fn name(&self) -> &'static str {
+    self.name
+  }
+
   /// この単位で表される値を、指定した単位に変換できるかどうかを検証する。
   /// 例えば、分単位はミリ秒単位に変換できるが、四半期単位は（一ヶ月の長さが毎月異なるため）日単位に変換できない。
   ///
@@ -46,7 +96,7 @@ impl TimeUnit {
   ///
   /// `return` この単位の計数の基数とすることができる最小の単位
   pub fn base_unit(&self) -> TimeUnit {
-    if self.value_base_type == TimeUnitType::Milliseconds {
+    if self.value_base_type == TimeUnitType::Millisecond {
       TimeUnit::MILLISECOND
     } else {
       TimeUnit::MONTH
@@ -87,6 +137,15 @@ impl TimeUnit {
         }
       })
   }
+
+  pub(crate) fn to_string(&self, quantity: i64) -> String {
+    format!(
+      "{} {}{}",
+      quantity,
+      self.value_type.to_string(),
+      if quantity == 1 { "" } else { "s" }
+    )
+  }
 }
 
 impl TimeUnit {
@@ -114,64 +173,64 @@ impl TimeUnit {
 
   pub const MILLISECOND: TimeUnit = TimeUnit {
     name: "millisecond",
-    value_type: TimeUnitType::Milliseconds,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Millisecond,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::IDENTICAL,
   };
 
   pub const SECOND: TimeUnit = TimeUnit {
     name: "second",
-    value_type: TimeUnitType::Seconds,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Second,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::MILLISECONDS_PER_SECOND,
   };
 
   pub const MINUTE: TimeUnit = TimeUnit {
     name: "minute",
-    value_type: TimeUnitType::Minutes,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Minute,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::MILLISECONDS_PER_MINUTE,
   };
 
   pub const HOUR: TimeUnit = TimeUnit {
     name: "hour",
-    value_type: TimeUnitType::Hours,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Hour,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::MILLISECONDS_PER_HOUR,
   };
 
   pub const DAY: TimeUnit = TimeUnit {
     name: "day",
-    value_type: TimeUnitType::Days,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Day,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::MILLISECONDS_PER_DAY,
   };
 
   pub const WEEK: TimeUnit = TimeUnit {
     name: "week",
-    value_type: TimeUnitType::Weeks,
-    value_base_type: TimeUnitType::Milliseconds,
+    value_type: TimeUnitType::Week,
+    value_base_type: TimeUnitType::Millisecond,
     factor: TimeUnitConversionFactor::MILLISECONDS_PER_WEEK,
   };
 
   pub const MONTH: TimeUnit = TimeUnit {
     name: "month",
-    value_type: TimeUnitType::Months,
-    value_base_type: TimeUnitType::Months,
+    value_type: TimeUnitType::Month,
+    value_base_type: TimeUnitType::Month,
     factor: TimeUnitConversionFactor::IDENTICAL,
   };
 
   pub const QUARTER: TimeUnit = TimeUnit {
     name: "quarter",
-    value_type: TimeUnitType::Quarters,
-    value_base_type: TimeUnitType::Months,
+    value_type: TimeUnitType::Quarter,
+    value_base_type: TimeUnitType::Month,
     factor: TimeUnitConversionFactor::MONTHS_PER_QUARTER,
   };
 
   pub const YEAR: TimeUnit = TimeUnit {
     name: "year",
-    value_type: TimeUnitType::Years,
-    value_base_type: TimeUnitType::Months,
+    value_type: TimeUnitType::Year,
+    value_base_type: TimeUnitType::Month,
     factor: TimeUnitConversionFactor::MONTHS_PER_YEAR,
   };
 }

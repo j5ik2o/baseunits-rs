@@ -1,4 +1,4 @@
-use crate::time::TimeUnit;
+use crate::time::{TimeUnit, TimePoint};
 use std::cmp::Ordering;
 use std::ops::Add;
 use crate::util::Ratio;
@@ -13,7 +13,7 @@ impl Add for Duration {
   type Output = Duration;
 
   fn add(self, rhs: Self) -> Self::Output {
-    Duration::add(&self, rhs)
+    Duration::add(&self, &rhs)
   }
 }
 
@@ -92,7 +92,13 @@ impl Duration {
     }
   }
 
-  pub fn add(&self, other: Self) -> Self {
+  fn check_greater_than_or_else(&self, other: &Self) {
+    if self.cmp(&other) == Ordering::Greater {
+      panic!("{:?} is before {:?}", self, other)
+    }
+  }
+
+  pub fn add(&self, other: &Self) -> Self {
     self.check_convertible(&other);
     let new_quantity = self.in_base_units() + other.in_base_units();
     Self::new(
@@ -103,6 +109,28 @@ impl Duration {
         other.clone().unit.base_unit()
       },
     )
+  }
+
+  pub fn subtract(&self, other: &Self) -> Self {
+    self.check_convertible(&other);
+    self.check_greater_than_or_else(&other);
+    let new_quantity = self.in_base_units() - other.in_base_units();
+    Self::new(
+      new_quantity,
+      if other.clone().quantity == 0 {
+        self.unit.base_unit()
+      } else {
+        other.clone().unit.base_unit()
+      },
+    )
+  }
+
+  pub fn added_to(&self, point: TimePoint) -> TimePoint {
+    TimePoint::from(self.in_base_units() + point.milliseconds_from_epoc())
+  }
+
+  pub fn subtracted_from(&self, point: TimePoint) -> TimePoint {
+    TimePoint::from(-1 * self.in_base_units() + point.milliseconds_from_epoc())
   }
 
   pub fn divided_by(&self, divisor: Self) -> Ratio {

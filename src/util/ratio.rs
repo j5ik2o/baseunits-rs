@@ -65,7 +65,6 @@ mod tests {
   use std::str::FromStr;
   use rust_decimal::prelude::*;
   use rust_decimal::Decimal;
-  use test::Bencher;
 
   #[test]
   fn test_big_decimal_ratio() {

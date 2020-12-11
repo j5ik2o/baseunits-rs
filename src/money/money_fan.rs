@@ -76,13 +76,13 @@ mod tests {
     let a = Allotment::new("Joe", Money::dollars_f32(65.00));
     let mut h = HashSet::new();
     h.insert(a);
-    let electric_bill = MoneyFan::new(Allotments::new(h));
+    let _electric_bill = MoneyFan::new(Allotments::new(h));
 
     let mut h = HashSet::new();
     h.insert(Allotment::new("Mary", Money::dollars_i32(650)));
     h.insert(Allotment::new("Jill", Money::dollars_i32(650)));
     h.insert(Allotment::new("Joe", Money::dollars_i32(650)));
-    let rent = MoneyFan::new(Allotments::new(h));
+    let _rent = MoneyFan::new(Allotments::new(h));
 
     // TODO
   }
