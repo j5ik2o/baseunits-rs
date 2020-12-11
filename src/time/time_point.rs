@@ -55,9 +55,9 @@ impl TimePoint {
   }
 
   pub fn parse<T: TimeZone>(
-    time_zone: T,
     date_time_str: String,
     pattern: String,
+    time_zone: T,
   ) -> Result<Self, ParseError> {
     let date_time = DateTime::parse_from_str(&date_time_str, &pattern)?.with_timezone(&time_zone);
     Ok(TimePoint::from(date_time))

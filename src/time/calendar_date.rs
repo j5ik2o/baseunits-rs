@@ -11,7 +11,7 @@ pub struct CalendarDate {
 
 impl From<TimePoint> for CalendarDate {
   fn from(time_point: TimePoint) -> Self {
-    Self::from_by_utc(time_point)
+    Self::from_utc(time_point)
   }
 }
 
@@ -21,11 +21,11 @@ impl CalendarDate {
     Self { year_month, day }
   }
 
-  fn from_by_utc(time_point: TimePoint) -> Self {
-    Self::from(Utc, time_point)
+  fn from_utc(time_point: TimePoint) -> Self {
+    Self::from(time_point, Utc)
   }
 
-  fn from<T: TimeZone>(time_zone: T, time_point: TimePoint) -> Self {
+  fn from<T: TimeZone>(time_point: TimePoint, time_zone: T) -> Self {
     let date_time = time_point.to_date_time(time_zone);
     let cym = CalendarYearMonth::from(date_time.clone());
     let dom = DayOfMonth::new(date_time.day().to_i32().unwrap());
