@@ -6,7 +6,7 @@ use chrono::{Datelike, Utc};
 use num::ToPrimitive;
 use rust_decimal::prelude::FromPrimitive;
 
-use crate::time::{DayOfMonth, is_leap_year, Month};
+use crate::time::{DayOfMonth, is_leap_year, Month, CalendarYearMonth};
 
 #[derive(Debug, Clone, Eq)]
 pub struct MonthOfYear {
@@ -133,5 +133,17 @@ impl MonthOfYear {
       let m = Month::from_i64(month_num).unwrap();
       (Self::from_month(m), false)
     }
+  }
+
+  pub fn on(self, year: i32) -> CalendarYearMonth {
+    CalendarYearMonth::new(year, self)
+  }
+
+  pub fn is_after(&self, other: &Self) -> bool {
+    !self.is_before(other) && self != other
+  }
+
+  pub fn is_before(&self, other: &Self) -> bool {
+    self.value < other.value
   }
 }

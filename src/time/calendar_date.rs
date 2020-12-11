@@ -1,5 +1,6 @@
-use chrono::{Datelike, DateTime, TimeZone, Utc};
+use chrono::{Datelike, DateTime, TimeZone, Utc, Date};
 use num::{ToPrimitive, FromPrimitive};
+use time::Duration as OldDuration;
 
 use crate::time::{CalendarYearMonth, DayOfMonth, DayOfWeek, TimePoint};
 
@@ -9,9 +10,37 @@ pub struct CalendarDate {
   day: DayOfMonth,
 }
 
+impl ToString for CalendarDate {
+  fn to_string(&self) -> String {
+    unimplemented!()
+  }
+}
+
+impl<T> From<Date<T>> for CalendarDate
+where
+  T: TimeZone,
+{
+  fn from(value: Date<T>) -> Self {
+    let dt: DateTime<T> = value.and_hms_milli(0, 0, 0, 0);
+    Self::from(dt)
+  }
+}
+
+impl<T> From<DateTime<T>> for CalendarDate
+where
+  T: TimeZone,
+{
+  fn from(value: DateTime<T>) -> Self {
+    let cym =
+      CalendarYearMonth::from_year_with_month(value.year(), value.month().to_i32().unwrap());
+    let dom = DayOfMonth::new(value.day().to_i32().unwrap());
+    CalendarDate::new(cym, dom)
+  }
+}
+
 impl From<TimePoint> for CalendarDate {
   fn from(time_point: TimePoint) -> Self {
-    Self::from_utc(time_point)
+    Self::from_time_point_utc(time_point)
   }
 }
 
@@ -21,13 +50,26 @@ impl CalendarDate {
     Self { year_month, day }
   }
 
-  fn from_utc(time_point: TimePoint) -> Self {
-    Self::from(time_point, Utc)
+  pub fn from_year_month_with_day_of_month(year_month: CalendarYearMonth, day: DayOfMonth) -> Self {
+    Self::new(year_month, day)
   }
 
-  fn from<T: TimeZone>(time_point: TimePoint, time_zone: T) -> Self {
+  pub fn from_year_with_month_with_day(year: i32, month: i32, day: i32) -> Self {
+    let cym = CalendarYearMonth::from_year_with_month(year, month);
+    let dom = DayOfMonth::new(day);
+    Self::new(cym, dom)
+  }
+
+  pub fn from_time_point_utc(time_point: TimePoint) -> Self {
+    Self::from_time_point(time_point, Utc)
+  }
+
+  pub fn from_time_point<T: TimeZone>(time_point: TimePoint, time_zone: T) -> Self {
     let date_time = time_point.to_date_time(time_zone);
-    let cym = CalendarYearMonth::from(date_time.clone());
+    let cym = CalendarYearMonth::from_year_with_month(
+      date_time.year(),
+      date_time.month().to_i32().unwrap(),
+    );
     let dom = DayOfMonth::new(date_time.day().to_i32().unwrap());
     CalendarDate::new(cym, dom)
   }
@@ -65,5 +107,46 @@ impl CalendarDate {
       .weekday()
       .number_from_monday();
     DayOfWeek::from_u32(no).unwrap()
+  }
+
+  pub fn add_days<T>(&self, days: i64, time_zone: T) -> Self
+  where
+    T: TimeZone,
+  {
+    let date_time = self.to_date_time_on_midnight(time_zone);
+    let new_date_time = date_time + OldDuration::days(days);
+    Self::from(new_date_time)
+  }
+
+  pub fn subtract_days<T>(&self, days: i64, time_zone: T) -> Self
+  where
+    T: TimeZone,
+  {
+    let date_time = self.to_date_time_on_midnight(time_zone);
+    let new_date_time = date_time - OldDuration::days(days);
+    Self::from(new_date_time)
+  }
+
+  pub fn add_months<T>(&self, months: i64, time_zone: T) -> Self
+  where
+    T: TimeZone,
+  {
+    let date_time = self.to_date_time_on_midnight(time_zone);
+    let new_date_time = date_time + OldDuration::days(30 * months);
+    Self::from(new_date_time)
+  }
+
+  pub fn is_after(&self, other: &Self) -> bool {
+    !self.is_before(other) && self != other
+  }
+
+  pub fn is_before(&self, other: &Self) -> bool {
+    if self.year_month.is_before(&other.year_month) {
+      true
+    } else if self.year_month.is_after(&other.year_month) {
+      false
+    } else {
+      self.day.is_before(&other.day)
+    }
   }
 }

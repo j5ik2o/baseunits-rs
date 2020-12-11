@@ -103,10 +103,10 @@ impl Duration {
     let new_quantity = self.in_base_units() + other.in_base_units();
     Self::new(
       new_quantity,
-      if other.clone().quantity == 0 {
+      if other.quantity == 0 {
         self.unit.base_unit()
       } else {
-        other.clone().unit.base_unit()
+        other.unit.base_unit()
       },
     )
   }
@@ -117,10 +117,10 @@ impl Duration {
     let new_quantity = self.in_base_units() - other.in_base_units();
     Self::new(
       new_quantity,
-      if other.clone().quantity == 0 {
+      if other.quantity == 0 {
         self.unit.base_unit()
       } else {
-        other.clone().unit.base_unit()
+        other.unit.base_unit()
       },
     )
   }

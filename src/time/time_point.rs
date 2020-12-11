@@ -1,6 +1,7 @@
-use chrono::{DateTime, TimeZone, Utc, Date, ParseError};
+use chrono::{DateTime, TimeZone, Utc, Date, ParseError, Timelike};
 use crate::time::duration::Duration;
-use crate::time::CalendarDate;
+use crate::time::{CalendarDate, TimeOfDay, CalendarYearMonth, DayOfMonth};
+use num::ToPrimitive;
 
 /// TimePoint
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
@@ -35,10 +36,6 @@ impl TimePoint {
     Self(milliseconds_from_epoc)
   }
 
-  pub fn milliseconds_from_epoc(&self) -> i64 {
-    self.0
-  }
-
   pub fn at_utc(
     year: i32,
     month: u32,
@@ -71,8 +68,38 @@ impl TimePoint {
     Self::new(milliseconds_from_epoc)
   }
 
+  pub fn at_calendar_year_month_with_day_of_month_with_others<T>(
+    year_month: CalendarYearMonth,
+    date: DayOfMonth,
+    hour: u32,
+    minute: u32,
+    second: u32,
+    millisecond: u32,
+    time_zone: T,
+  ) -> Self
+  where
+    T: TimeZone,
+  {
+    Self::at(
+      year_month.breach_encapsulation_of_year(),
+      year_month.as_month().to_u32().unwrap(),
+      date.0.to_u32().unwrap(),
+      hour,
+      minute,
+      second,
+      minute,
+      time_zone,
+    )
+  }
+
   pub fn from_date_time(date_time: DateTime<Utc>) -> Self {
     TimePoint::new(date_time.timestamp_millis())
+  }
+
+  pub fn at_midnight<T>(calendar_date: CalendarDate) -> Self
+  where
+    T: TimeZone,
+  {
   }
 
   pub fn parse_utc(date_time_str: &str, pattern: &str) -> Result<TimePoint, ParseError> {
@@ -87,6 +114,12 @@ impl TimePoint {
     Ok(TimePoint::from(date_time))
   }
 
+  // ---
+
+  pub fn milliseconds_from_epoc(&self) -> i64 {
+    self.0
+  }
+
   pub fn to_date_time_utc(&self) -> DateTime<Utc> {
     self.to_date_time(Utc)
   }
@@ -98,11 +131,45 @@ impl TimePoint {
     time_zone.timestamp_millis(self.0)
   }
 
-  pub fn to_calendar_date(&self) -> CalendarDate {
-    CalendarDate::from(self.clone())
+  pub fn to_date<T>(&self, time_zone: T) -> Date<T>
+  where
+    T: TimeZone,
+  {
+    self.to_date_time(time_zone).date()
+  }
+
+  pub fn to_calendar_date_utc(&self) -> CalendarDate {
+    self.to_calendar_date(Utc)
+  }
+
+  pub fn to_calendar_date<T>(&self, time_zone: T) -> CalendarDate
+  where
+    T: TimeZone,
+  {
+    CalendarDate::from_time_point(self.clone(), time_zone)
+  }
+
+  pub fn to_time_of_day<T>(&self, time_zone: T) -> TimeOfDay
+  where
+    T: TimeZone,
+  {
+    let dt = self.to_date_time(time_zone);
+    TimeOfDay::from_hour_with_minute(dt.hour().to_u8().unwrap(), dt.minute().to_u8().unwrap())
   }
 
   pub fn add(self, duration: Duration) -> Self {
     duration.added_to(self)
+  }
+
+  pub fn subtract(self, duration: Duration) -> Self {
+    duration.subtracted_from(self)
+  }
+
+  pub fn is_after(&self, other: &Self) -> bool {
+    !self.is_before(other) && self != other
+  }
+
+  pub fn is_before(&self, other: &Self) -> bool {
+    self.0 < other.0
   }
 }

@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
-pub struct HourOfDay(i32);
+pub struct HourOfDay(u8);
 
 impl ToString for HourOfDay {
   fn to_string(&self) -> String {
@@ -8,9 +8,9 @@ impl ToString for HourOfDay {
 }
 
 impl HourOfDay {
-  pub const MIN: i32 = 0;
-  pub const MAX: i32 = 23;
-  pub fn new(value: i32) -> Self {
+  pub const MIN: u8 = 0;
+  pub const MAX: u8 = 23;
+  pub fn new(value: u8) -> Self {
     if !(HourOfDay::MIN <= value && value <= HourOfDay::MAX) {
       panic!(
         "Illegal value for 24 hour : {:}, please use a value between 0 and 23",
@@ -21,7 +21,7 @@ impl HourOfDay {
   }
 
   pub fn is_after(&self, other: &Self) -> bool {
-    self.0 > other.0
+    !self.is_before(other) && self != other
   }
 
   pub fn is_before(&self, other: &Self) -> bool {

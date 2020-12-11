@@ -1,21 +1,25 @@
 use num::{FromPrimitive, ToPrimitive};
 
 pub use calendar_date::*;
+pub use calendar_date_time::*;
 pub use calendar_year_month::*;
 pub use day_of_month::*;
+pub use hour_of_day::*;
 pub use minute_of_hour::*;
 pub use month_of_year::*;
 pub use time_point::*;
 pub use time_unit::*;
-pub use hour_of_day::*;
+pub use time_of_day::*;
 
 mod calendar_date;
+mod calendar_date_time;
 mod calendar_year_month;
 mod day_of_month;
 mod duration;
 mod hour_of_day;
 mod minute_of_hour;
 mod month_of_year;
+mod time_of_day;
 mod time_point;
 mod time_unit;
 mod time_unit_conversion_factor;

@@ -17,19 +17,19 @@ impl DayOfMonth {
     Self(value)
   }
 
+  pub fn is_applyable(&self, month: CalendarYearMonth) -> bool {
+    !month.last_day_of_month().is_before(self)
+  }
+
+  pub fn on(self, month: CalendarYearMonth) -> CalendarDate {
+    CalendarDate::new(month, self)
+  }
+
   pub fn is_after(&self, other: &Self) -> bool {
     !self.is_before(other) && self != other
   }
 
   pub fn is_before(&self, other: &Self) -> bool {
     self.0 < other.0
-  }
-
-  pub fn is_applyable(&self, month: CalendarYearMonth) -> bool {
-    !month.last_day_of_month().is_before(self)
-  }
-
-  pub fn on(&self, month: CalendarYearMonth) -> CalendarDate {
-    CalendarDate::new(month, self.clone())
   }
 }
