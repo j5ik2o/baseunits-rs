@@ -1,5 +1,4 @@
-use chrono::{DateTime, TimeZone, Utc, Date};
-use time::{Timespec, Tm};
+use chrono::{DateTime, TimeZone, Utc, Date, ParseError};
 use crate::time::duration::Duration;
 use crate::time::CalendarDate;
 
@@ -34,7 +33,8 @@ impl TimePoint {
     self.0
   }
 
-  pub fn at(
+  pub fn at<T: TimeZone>(
+    time_zone: T,
     year: i32,
     month: u32,
     day: u32,
@@ -43,37 +43,31 @@ impl TimePoint {
     second: u32,
     millisecond: u32,
   ) -> Self {
-    let epoc = Utc
+    let milliseconds_from_epoc = time_zone
       .ymd(year, month, day)
       .and_hms_milli(hour, minute, second, millisecond)
       .timestamp_millis();
-    Self::new(epoc)
-  }
-
-  pub fn from_tm(tm: Tm) -> Self {
-    TimePoint::new(tm.to_timespec().sec * 1000)
+    Self::new(milliseconds_from_epoc)
   }
 
   pub fn from_date_time(date_time: DateTime<Utc>) -> Self {
     TimePoint::new(date_time.timestamp_millis())
   }
 
-  pub fn parse<T: TimeZone>(date_time_str: String, pattern: String, time_zone: T) -> Self {
-    let date_time = DateTime::parse_from_str(&date_time_str, &pattern)
-      .unwrap()
-      .with_timezone(&time_zone);
-    TimePoint::from(date_time)
+  pub fn parse<T: TimeZone>(
+    time_zone: T,
+    date_time_str: String,
+    pattern: String,
+  ) -> Result<Self, ParseError> {
+    let date_time = DateTime::parse_from_str(&date_time_str, &pattern)?.with_timezone(&time_zone);
+    Ok(TimePoint::from(date_time))
   }
 
-  pub fn as_tm(&self) -> Tm {
-    time::at(Timespec::new(self.0, 0))
+  pub fn to_date_time<T: TimeZone>(&self, time_zone: T) -> DateTime<T> {
+    time_zone.timestamp_millis(self.0)
   }
 
-  pub fn as_date_time(&self) -> DateTime<Utc> {
-    Utc.timestamp_millis(self.0)
-  }
-
-  pub fn as_calendar_date(&self) -> CalendarDate {
+  pub fn to_calendar_date(&self) -> CalendarDate {
     CalendarDate::from(self.clone())
   }
 
