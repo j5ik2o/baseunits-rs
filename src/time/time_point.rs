@@ -58,6 +58,13 @@ impl TimePoint {
     TimePoint::new(date_time.timestamp_millis())
   }
 
+  pub fn parse<T: TimeZone>(date_time_str: String, pattern: String, time_zone: T) -> Self {
+    let date_time = DateTime::parse_from_str(&date_time_str, &pattern)
+      .unwrap()
+      .with_timezone(&time_zone);
+    TimePoint::from(date_time)
+  }
+
   pub fn as_tm(&self) -> Tm {
     time::at(Timespec::new(self.0, 0))
   }
