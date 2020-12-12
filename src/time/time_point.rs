@@ -1,4 +1,7 @@
-use chrono::{DateTime, TimeZone, Utc, Date, ParseError, Timelike};
+use chrono::{
+  DateTime, TimeZone, Utc, Date, ParseError, Timelike, NaiveDate, Datelike, NaiveDateTime,
+  NaiveTime,
+};
 use crate::time::duration::Duration;
 use crate::time::{CalendarDate, TimeOfDay, CalendarYearMonth, DayOfMonth};
 use num::ToPrimitive;
@@ -15,7 +18,7 @@ impl From<i64> for TimePoint {
 
 impl ToString for TimePoint {
   fn to_string(&self) -> String {
-    Self::to_string(self, "%Y/%m/%d %H/%M/%S")
+    Self::to_string_utc(self, "%Y/%m/%d %H/%M/%S")
   }
 }
 
@@ -161,11 +164,57 @@ impl TimePoint {
     time_zone.timestamp_millis(self.0)
   }
 
+  pub fn to_date_utc(&self) -> Date<Utc> {
+    self.to_date(Utc)
+  }
+
   pub fn to_date<T>(&self, time_zone: T) -> Date<T>
   where
     T: TimeZone,
   {
     self.to_date_time(time_zone).date()
+  }
+
+  pub fn to_naive_date_time_utc(&self) -> NaiveDateTime {
+    self.to_naive_date_time(Utc)
+  }
+
+  pub fn to_naive_date_time<T>(&self, time_zone: T) -> NaiveDateTime
+  where
+    T: TimeZone,
+  {
+    let dt = self.to_naive_date(time_zone.clone());
+    let nt = self.to_naive_time(time_zone);
+    NaiveDateTime::new(dt, nt)
+  }
+
+  pub fn to_naive_time_utc(&self) -> NaiveTime {
+    self.to_naive_time(Utc)
+  }
+
+  pub fn to_naive_time<T>(&self, time_zone: T) -> NaiveTime
+  where
+    T: TimeZone,
+  {
+    let dt = self.to_date_time(time_zone);
+    NaiveTime::from_hms_milli(
+      dt.hour(),
+      dt.minute(),
+      dt.second(),
+      dt.nanosecond() * 1000000,
+    )
+  }
+
+  pub fn to_naive_date_utc(&self) -> NaiveDate {
+    self.to_naive_date(Utc)
+  }
+
+  pub fn to_naive_date<T>(&self, time_zone: T) -> NaiveDate
+  where
+    T: TimeZone,
+  {
+    let date = self.to_date(time_zone);
+    NaiveDate::from_ymd(date.year(), date.month(), date.day())
   }
 
   pub fn to_calendar_date_utc(&self) -> CalendarDate {
@@ -222,8 +271,15 @@ impl TimePoint {
     self.to_calendar_date(time_zone.clone()) == other.to_calendar_date(time_zone)
   }
 
-  fn to_string(&self, fmt: &str) -> String {
-    self.to_date_time(Utc).format(fmt).to_string()
+  fn to_string_utc(&self, fmt: &str) -> String {
+    self.to_string(fmt, Utc)
+  }
+
+  fn to_string<T>(&self, fmt: &str, time_zone: T) -> String
+  where
+    T: TimeZone,
+  {
+    self.to_date_time(time_zone).format(fmt).to_string()
   }
 }
 
@@ -232,16 +288,23 @@ mod tests {
   use crate::time::{TimePoint, TimeOfDay};
 
   #[test]
-  fn test_at_ymd_milli() {
+  fn _at_ymd_milli() {
     let tp1 = TimePoint::new(1262304000000);
     let tp2 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
     assert_eq!(tp2, tp1)
   }
 
   #[test]
-  fn test_to_time_of_day() {
+  fn to_time_of_day() {
     let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
     let tod = TimeOfDay::from_hour_with_minute(0, 0);
     assert_eq!(tp1.to_time_of_day_utc(), tod)
+  }
+
+  #[test]
+  fn is_same_day_as() {
+    let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
+    let tp2 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 23, 59, 59, 0);
+    assert!(tp1.is_same_day_as_utc(&tp2))
   }
 }
