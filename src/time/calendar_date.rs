@@ -1,5 +1,5 @@
-use chrono::{Datelike, DateTime, TimeZone, Utc, Date};
-use num::{ToPrimitive, FromPrimitive};
+use chrono::{Date, Datelike, DateTime, TimeZone, Utc};
+use num::FromPrimitive;
 use time::Duration as OldDuration;
 
 use crate::time::{CalendarYearMonth, DayOfMonth, DayOfWeek, TimePoint};
@@ -86,8 +86,8 @@ impl CalendarDate {
     time_zone
       .ymd(
         self.year_month.breach_encapsulation_of_year(),
-        self.year_month.to_month().to_u32().unwrap(),
-        self.day.0.to_u32().unwrap(),
+        self.year_month.to_month_u32(),
+        self.day.0,
       )
       .and_hms_milli(0, 0, 0, 0)
   }

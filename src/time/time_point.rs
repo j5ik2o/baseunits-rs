@@ -5,6 +5,7 @@ use chrono::{
 use crate::time::duration::Duration;
 use crate::time::{CalendarDate, TimeOfDay, CalendarYearMonth, DayOfMonth};
 use num::ToPrimitive;
+use core::fmt;
 
 /// TimePoint
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
@@ -18,7 +19,7 @@ impl From<i64> for TimePoint {
 
 impl ToString for TimePoint {
   fn to_string(&self) -> String {
-    Self::to_string_utc(self, "%Y/%m/%d %H/%M/%S")
+    Self::to_string_utc(self, "%Y/%m/%d %H:%M:%S")
   }
 }
 
@@ -275,9 +276,9 @@ impl TimePoint {
     self.to_string(fmt, Utc)
   }
 
-  fn to_string<T>(&self, fmt: &str, time_zone: T) -> String
+  fn to_string<Tz: TimeZone>(&self, fmt: &str, time_zone: Tz) -> String
   where
-    T: TimeZone,
+    Tz::Offset: fmt::Display,
   {
     self.to_date_time(time_zone).format(fmt).to_string()
   }
@@ -306,5 +307,11 @@ mod tests {
     let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
     let tp2 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 23, 59, 59, 0);
     assert!(tp1.is_same_day_as_utc(&tp2))
+  }
+
+  #[test]
+  fn to_string() {
+    let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 23, 59, 59, 0);
+    println!("{}", ToString::to_string(&tp1));
   }
 }
