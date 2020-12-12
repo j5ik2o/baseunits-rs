@@ -123,6 +123,15 @@ impl CalendarDate {
     Self::from(new_date_time)
   }
 
+  pub fn subtract_months<T>(&self, months: i64, time_zone: T) -> Self
+  where
+    T: TimeZone,
+  {
+    let date_time = self.to_date_time_on_midnight(time_zone);
+    let new_date_time = date_time - OldDuration::days(30 * months);
+    Self::from(new_date_time)
+  }
+
   pub fn add_months<T>(&self, months: i64, time_zone: T) -> Self
   where
     T: TimeZone,
