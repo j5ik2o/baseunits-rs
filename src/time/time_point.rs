@@ -13,6 +13,12 @@ impl From<i64> for TimePoint {
   }
 }
 
+impl ToString for TimePoint {
+  fn to_string(&self) -> String {
+    Self::to_string(self, "%Y/%m/%d %H/%M/%S")
+  }
+}
+
 impl From<DateTime<Utc>> for TimePoint {
   fn from(date_time: DateTime<Utc>) -> Self {
     TimePoint::from_date_time_utc(date_time)
@@ -97,7 +103,7 @@ impl TimePoint {
   {
     Self::at_ymd_hms_milli_tz(
       year_month.breach_encapsulation_of_year(),
-      year_month.as_month().to_u32().unwrap(),
+      year_month.to_month_u32(),
       date.0.to_u32().unwrap(),
       hour,
       minute,
@@ -173,12 +179,16 @@ impl TimePoint {
     CalendarDate::from_time_point(self.clone(), time_zone)
   }
 
+  pub fn to_time_of_day_utc(&self) -> TimeOfDay {
+    self.to_time_of_day(Utc)
+  }
+
   pub fn to_time_of_day<T>(&self, time_zone: T) -> TimeOfDay
   where
     T: TimeZone,
   {
     let dt = self.to_date_time(time_zone);
-    TimeOfDay::from_hour_with_minute(dt.hour().to_u8().unwrap(), dt.minute().to_u8().unwrap())
+    TimeOfDay::from_hour_with_minute(dt.hour(), dt.minute())
   }
 
   pub fn add(self, duration: Duration) -> Self {
@@ -189,11 +199,49 @@ impl TimePoint {
     duration.subtracted_from(self)
   }
 
+  pub fn next_day(self) -> Self {
+    self.add(Duration::days(1))
+  }
+
   pub fn is_after(&self, other: &Self) -> bool {
     !self.is_before(other) && self != other
   }
 
   pub fn is_before(&self, other: &Self) -> bool {
     self.0 < other.0
+  }
+
+  pub fn is_same_day_as_utc(&self, other: &Self) -> bool {
+    self.is_same_day_as(other, Utc)
+  }
+
+  pub fn is_same_day_as<T>(&self, other: &Self, time_zone: T) -> bool
+  where
+    T: TimeZone,
+  {
+    self.to_calendar_date(time_zone.clone()) == other.to_calendar_date(time_zone)
+  }
+
+  fn to_string(&self, fmt: &str) -> String {
+    self.to_date_time(Utc).format(fmt).to_string()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::time::{TimePoint, TimeOfDay};
+
+  #[test]
+  fn test_at_ymd_milli() {
+    let tp1 = TimePoint::new(1262304000000);
+    let tp2 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
+    assert_eq!(tp2, tp1)
+  }
+
+  #[test]
+  fn test_to_time_of_day() {
+    let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
+    let tod = TimeOfDay::from_hour_with_minute(0, 0);
+    assert_eq!(tp1.to_time_of_day_utc(), tod)
   }
 }

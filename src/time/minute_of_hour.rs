@@ -1,7 +1,7 @@
 use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
-pub struct MinuteOfHour(u8);
+pub struct MinuteOfHour(u32);
 
 impl ToString for MinuteOfHour {
   fn to_string(&self) -> String {
@@ -26,11 +26,11 @@ impl Sub for MinuteOfHour {
 }
 
 impl MinuteOfHour {
-  const MIN: u8 = 0;
-  const MAX: u8 = 59;
+  const MIN: u32 = 0;
+  const MAX: u32 = 59;
 
   /// コンストラクタ。
-  pub fn new(value: u8) -> Self {
+  pub fn new(value: u32) -> Self {
     if !(MinuteOfHour::MIN <= value && value <= MinuteOfHour::MAX) {
       panic!(
         "Illegal value for 60 minutes : {:?}, please use a value between 0 and 59",

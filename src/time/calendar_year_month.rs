@@ -1,6 +1,6 @@
 use crate::time::{MonthOfYear, Month, DayOfMonth, TimePoint};
 use chrono::{DateTime, Datelike, Date, TimeZone, Utc, ParseError};
-use num::FromPrimitive;
+use num::{FromPrimitive, ToPrimitive};
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
 pub struct CalendarYearMonth {
@@ -37,10 +37,10 @@ impl CalendarYearMonth {
     Self { year, month }
   }
 
-  pub fn from_year_with_month(year: i32, month: i32) -> Self {
+  pub fn from_year_with_month(year: i32, month: u32) -> Self {
     Self::new(
       year,
-      MonthOfYear::from_month(Month::from_i32(month).unwrap()),
+      MonthOfYear::from_month(Month::from_u32(month).unwrap()),
     )
   }
 
@@ -54,6 +54,10 @@ impl CalendarYearMonth {
 
   pub fn to_month(&self) -> Month {
     self.month.breach_encapsulation_of_value().clone()
+  }
+
+  pub fn to_month_u32(&self) -> u32 {
+    self.month.breach_encapsulation_of_value().to_u32().unwrap()
   }
 
   pub fn last_day_of_month(&self) -> DayOfMonth {

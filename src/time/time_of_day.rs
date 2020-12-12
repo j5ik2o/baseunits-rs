@@ -10,8 +10,8 @@ impl TimeOfDay {
     Self { hour, minute }
   }
 
-  pub fn from_hour_with_minute(year: u8, minute: u8) -> Self {
-    TimeOfDay::new(HourOfDay::new(year), MinuteOfHour::new(minute))
+  pub fn from_hour_with_minute(hour: u32, minute: u32) -> Self {
+    TimeOfDay::new(HourOfDay::new(hour), MinuteOfHour::new(minute))
   }
 
   pub fn on(self, date: CalendarDate) -> CalendarDateTime {

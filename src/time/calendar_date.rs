@@ -31,9 +31,8 @@ where
   T: TimeZone,
 {
   fn from(value: DateTime<T>) -> Self {
-    let cym =
-      CalendarYearMonth::from_year_with_month(value.year(), value.month().to_i32().unwrap());
-    let dom = DayOfMonth::new(value.day().to_i32().unwrap());
+    let cym = CalendarYearMonth::from_year_with_month(value.year(), value.month());
+    let dom = DayOfMonth::new(value.day());
     CalendarDate::new(cym, dom)
   }
 }
@@ -54,7 +53,7 @@ impl CalendarDate {
     Self::new(year_month, day)
   }
 
-  pub fn from_year_with_month_with_day(year: i32, month: i32, day: i32) -> Self {
+  pub fn from_year_with_month_with_day(year: i32, month: u32, day: u32) -> Self {
     let cym = CalendarYearMonth::from_year_with_month(year, month);
     let dom = DayOfMonth::new(day);
     Self::new(cym, dom)
@@ -66,11 +65,8 @@ impl CalendarDate {
 
   pub fn from_time_point<T: TimeZone>(time_point: TimePoint, time_zone: T) -> Self {
     let date_time = time_point.to_date_time(time_zone);
-    let cym = CalendarYearMonth::from_year_with_month(
-      date_time.year(),
-      date_time.month().to_i32().unwrap(),
-    );
-    let dom = DayOfMonth::new(date_time.day().to_i32().unwrap());
+    let cym = CalendarYearMonth::from_year_with_month(date_time.year(), date_time.month());
+    let dom = DayOfMonth::new(date_time.day());
     CalendarDate::new(cym, dom)
   }
 
@@ -90,7 +86,7 @@ impl CalendarDate {
     time_zone
       .ymd(
         self.year_month.breach_encapsulation_of_year(),
-        self.year_month.as_month().to_u32().unwrap(),
+        self.year_month.to_month().to_u32().unwrap(),
         self.day.0.to_u32().unwrap(),
       )
       .and_hms_milli(0, 0, 0, 0)

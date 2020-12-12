@@ -1,13 +1,13 @@
 use crate::time::{CalendarYearMonth, CalendarDate};
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
-pub struct DayOfMonth(pub i32);
+pub struct DayOfMonth(pub(crate) u32);
 
 impl DayOfMonth {
-  pub const MIN: i32 = 1;
-  pub const MAX: i32 = 31;
+  pub const MIN: u32 = 1;
+  pub const MAX: u32 = 31;
 
-  pub fn new(value: i32) -> Self {
+  pub fn new(value: u32) -> Self {
     if !(DayOfMonth::MIN <= value && value <= DayOfMonth::MAX) {
       panic!(
         "Illegal value for day of month: {:?}, please use a value between 1 and 31",
@@ -17,7 +17,11 @@ impl DayOfMonth {
     Self(value)
   }
 
-  pub fn is_applyable(&self, month: CalendarYearMonth) -> bool {
+  pub fn to_u32(&self) -> u32 {
+    self.0
+  }
+
+  pub fn is_appliable(&self, month: CalendarYearMonth) -> bool {
     !month.last_day_of_month().is_before(self)
   }
 
