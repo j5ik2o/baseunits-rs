@@ -13,12 +13,9 @@ impl From<i64> for TimePoint {
   }
 }
 
-impl<T> From<DateTime<T>> for TimePoint
-where
-  T: TimeZone,
-{
-  fn from(date_time: DateTime<T>) -> Self {
-    TimePoint::new(date_time.timestamp_millis())
+impl From<DateTime<Utc>> for TimePoint {
+  fn from(date_time: DateTime<Utc>) -> Self {
+    TimePoint::from_date_time_utc(date_time)
   }
 }
 
@@ -27,7 +24,7 @@ where
   T: TimeZone,
 {
   fn from(date: Date<T>) -> Self {
-    TimePoint::new(date.and_hms_milli(0, 0, 0, 0).timestamp_millis())
+    TimePoint::from_date_tz(date)
   }
 }
 
@@ -36,7 +33,25 @@ impl TimePoint {
     Self(milliseconds_from_epoc)
   }
 
-  pub fn at_utc(
+  pub fn from_date_time_utc(date_time: DateTime<Utc>) -> Self {
+    Self::from_date_time_tz(date_time)
+  }
+
+  pub fn from_date_time_tz<T>(date_time: DateTime<T>) -> Self
+  where
+    T: TimeZone,
+  {
+    TimePoint::new(date_time.timestamp_millis())
+  }
+
+  pub fn from_date_tz<T>(date: Date<T>) -> Self
+  where
+    T: TimeZone,
+  {
+    TimePoint::new(date.and_hms_milli(0, 0, 0, 0).timestamp_millis())
+  }
+
+  pub fn at_ymd_hms_milli_utc(
     year: i32,
     month: u32,
     day: u32,
@@ -45,10 +60,10 @@ impl TimePoint {
     second: u32,
     millisecond: u32,
   ) -> Self {
-    Self::at(year, month, day, hour, minute, second, millisecond, Utc)
+    Self::at_ymd_hms_milli_tz(year, month, day, hour, minute, second, millisecond, Utc)
   }
 
-  pub fn at<T>(
+  pub fn at_ymd_hms_milli_tz<T>(
     year: i32,
     month: u32,
     day: u32,
@@ -68,7 +83,7 @@ impl TimePoint {
     Self::new(milliseconds_from_epoc)
   }
 
-  pub fn at_calendar_year_month_with_day_of_month_with_others<T>(
+  pub fn at_cym_dom_hms_milli_tz<T>(
     year_month: CalendarYearMonth,
     date: DayOfMonth,
     hour: u32,
@@ -80,38 +95,47 @@ impl TimePoint {
   where
     T: TimeZone,
   {
-    Self::at(
+    Self::at_ymd_hms_milli_tz(
       year_month.breach_encapsulation_of_year(),
       year_month.as_month().to_u32().unwrap(),
       date.0.to_u32().unwrap(),
       hour,
       minute,
       second,
-      minute,
+      millisecond,
       time_zone,
     )
   }
 
-  pub fn from_date_time(date_time: DateTime<Utc>) -> Self {
-    TimePoint::new(date_time.timestamp_millis())
+  pub fn at_midnight_cd_utc(calendar_date: CalendarDate) -> Self {
+    Self::at_midnight_cd_tz(calendar_date, Utc)
   }
 
-  pub fn at_midnight<T>(calendar_date: CalendarDate) -> Self
+  pub fn at_midnight_cd_tz<T>(calendar_date: CalendarDate, time_zone: T) -> Self
   where
     T: TimeZone,
   {
+    Self::at_cym_dom_hms_milli_tz(
+      calendar_date.breach_encapsulation_of_year_month(),
+      calendar_date.breach_encapsulation_of_day(),
+      0,
+      0,
+      0,
+      0,
+      time_zone,
+    )
   }
 
   pub fn parse_utc(date_time_str: &str, pattern: &str) -> Result<TimePoint, ParseError> {
-    Self::parse(date_time_str, pattern, Utc)
+    Self::parse_tz(date_time_str, pattern, Utc)
   }
 
-  pub fn parse<T>(date_time_str: &str, pattern: &str, time_zone: T) -> Result<Self, ParseError>
+  pub fn parse_tz<T>(date_time_str: &str, pattern: &str, time_zone: T) -> Result<Self, ParseError>
   where
     T: TimeZone,
   {
     let date_time = DateTime::parse_from_str(date_time_str, pattern)?.with_timezone(&time_zone);
-    Ok(TimePoint::from(date_time))
+    Ok(TimePoint::from_date_time_tz(date_time))
   }
 
   // ---

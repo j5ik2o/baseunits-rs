@@ -52,7 +52,7 @@ impl CalendarYearMonth {
     self.month.clone()
   }
 
-  pub fn as_month(&self) -> Month {
+  pub fn to_month(&self) -> Month {
     self.month.breach_encapsulation_of_value().clone()
   }
 
@@ -70,11 +70,11 @@ impl CalendarYearMonth {
     new_instance
   }
 
-  pub fn parse<T>(date_str: &str, pattern: &str, time_zone: T) -> Result<Self, ParseError>
+  pub fn parse_tz<T>(date_str: &str, pattern: &str, time_zone: T) -> Result<Self, ParseError>
   where
     T: TimeZone,
   {
-    let tp = TimePoint::parse(date_str, pattern, time_zone)?;
+    let tp = TimePoint::parse_tz(date_str, pattern, time_zone)?;
     Ok(CalendarYearMonth::from(tp))
   }
 
