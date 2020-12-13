@@ -91,7 +91,7 @@ impl TimePoint {
     T: TimeZone,
   {
     Self::at_ymd_hms_milli_tz(
-      *year_month.as_year(),
+      year_month.to_year(),
       year_month.to_month_u32(),
       date.0.to_u32().unwrap(),
       hour,

@@ -52,8 +52,8 @@ impl CalendarYearMonth {
     Self { year, month }
   }
 
-  pub fn as_year(&self) -> &i32 {
-    &self.year
+  pub fn to_year(&self) -> i32 {
+    self.year
   }
 
   pub fn as_month_of_year(&self) -> &MonthOfYear {

@@ -87,7 +87,7 @@ impl CalendarDate {
   pub fn to_date_time_on_midnight<T: TimeZone>(&self, time_zone: T) -> DateTime<T> {
     time_zone
       .ymd(
-        *self.year_month.as_year(),
+        self.year_month.to_year(),
         self.year_month.to_month_u32(),
         self.day.0,
       )
