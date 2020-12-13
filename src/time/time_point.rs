@@ -257,11 +257,11 @@ impl TimePoint {
     self.to_calendar_date(time_zone.clone()) == other.to_calendar_date(time_zone)
   }
 
-  fn to_string_utc(&self, fmt: &str) -> String {
+  fn to_fmt_string_utc(&self, fmt: &str) -> String {
     self.to_string(fmt, Utc)
   }
 
-  fn to_string<Tz: TimeZone>(&self, fmt: &str, time_zone: Tz) -> String
+  fn to_fmt_string<Tz: TimeZone>(&self, fmt: &str, time_zone: Tz) -> String
   where
     Tz::Offset: fmt::Display,
   {
