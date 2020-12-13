@@ -18,15 +18,17 @@ where
   }
 }
 
-impl CalendarDateTime {
-  pub fn new(date: CalendarDate, time: TimeOfDay) -> Self {
-    Self { date, time }
-  }
-
-  pub fn from_ymd_hm(year: i32, month: u32, day: u32, hour: u32, minute: u32) -> Self {
+impl From<(i32, u32, u32, u32, u32)> for CalendarDateTime {
+  fn from((year, month, day, hour, minute): (i32, u32, u32, u32, u32)) -> Self {
     let cd = CalendarDate::from((year, month, day));
     let tod = TimeOfDay::from_hour_with_minute(hour, minute);
     Self::new(cd, tod)
+  }
+}
+
+impl CalendarDateTime {
+  pub fn new(date: CalendarDate, time: TimeOfDay) -> Self {
+    Self { date, time }
   }
 
   pub fn is_after(&self, other: &Self) -> bool {

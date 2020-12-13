@@ -72,12 +72,12 @@ impl CalendarDate {
     Self { year_month, day }
   }
 
-  pub fn breach_encapsulation_of_year_month(&self) -> CalendarYearMonth {
-    self.year_month.clone()
+  pub fn as_year_month(&self) -> &CalendarYearMonth {
+    &self.year_month
   }
 
-  pub fn breach_encapsulation_of_day(&self) -> DayOfMonth {
-    self.day.clone()
+  pub fn as_day(&self) -> &DayOfMonth {
+    &self.day
   }
 
   pub fn to_date_time_on_midnight_at_utc(&self) -> DateTime<Utc> {
@@ -87,7 +87,7 @@ impl CalendarDate {
   pub fn to_date_time_on_midnight<T: TimeZone>(&self, time_zone: T) -> DateTime<T> {
     time_zone
       .ymd(
-        self.year_month.breach_encapsulation_of_year(),
+        *self.year_month.as_year(),
         self.year_month.to_month_u32(),
         self.day.0,
       )

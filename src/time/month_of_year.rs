@@ -112,15 +112,17 @@ impl MonthOfYear {
     hash.iter().cloned().find(|e| e.value == month).unwrap()
   }
 
-  pub fn breach_encapsulation_of_value(&self) -> Month {
-    self.value.clone()
+  pub fn as_value(&self) -> &Month {
+    &self.value
   }
 
-  pub fn breach_encapsulation_of_last_day(&self) -> DayOfMonth {
+  pub const DAY_OF_MONTH_29: DayOfMonth = DayOfMonth(29);
+
+  pub fn as_last_day(&self) -> &DayOfMonth {
     if self.value == Month::February && is_leap_year(Utc::today().year()) {
-      DayOfMonth::new(29)
+      &MonthOfYear::DAY_OF_MONTH_29
     } else {
-      self.last_day.clone()
+      &self.last_day
     }
   }
 

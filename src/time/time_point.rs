@@ -91,7 +91,7 @@ impl TimePoint {
     T: TimeZone,
   {
     Self::at_ymd_hms_milli_tz(
-      year_month.breach_encapsulation_of_year(),
+      *year_month.as_year(),
       year_month.to_month_u32(),
       date.0.to_u32().unwrap(),
       hour,
@@ -111,8 +111,8 @@ impl TimePoint {
     T: TimeZone,
   {
     Self::at_cym_dom_hms_milli_tz(
-      calendar_date.breach_encapsulation_of_year_month(),
-      calendar_date.breach_encapsulation_of_day(),
+      calendar_date.as_year_month().clone(),
+      calendar_date.as_day().clone(),
       0,
       0,
       0,

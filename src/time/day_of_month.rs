@@ -22,7 +22,7 @@ impl DayOfMonth {
   }
 
   pub fn is_appliable(&self, month: CalendarYearMonth) -> bool {
-    !month.last_day_of_month().is_before(self)
+    !month.as_last_day_of_month().is_before(self)
   }
 
   pub fn on(self, month: CalendarYearMonth) -> CalendarDate {

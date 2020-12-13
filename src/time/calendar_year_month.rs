@@ -52,24 +52,24 @@ impl CalendarYearMonth {
     Self { year, month }
   }
 
-  pub fn breach_encapsulation_of_year(&self) -> i32 {
-    self.year
+  pub fn as_year(&self) -> &i32 {
+    &self.year
   }
 
-  pub fn breach_encapsulation_of_month(&self) -> MonthOfYear {
-    self.month.clone()
+  pub fn as_month_of_year(&self) -> &MonthOfYear {
+    &self.month
   }
 
-  pub fn to_month(&self) -> Month {
-    self.month.breach_encapsulation_of_value().clone()
+  pub fn as_month(&self) -> &Month {
+    self.month.as_value()
   }
 
   pub fn to_month_u32(&self) -> u32 {
-    self.month.breach_encapsulation_of_value().to_u32().unwrap()
+    self.month.as_value().to_u32().unwrap()
   }
 
-  pub fn last_day_of_month(&self) -> DayOfMonth {
-    self.month.breach_encapsulation_of_last_day()
+  pub fn as_last_day_of_month(&self) -> &DayOfMonth {
+    self.month.as_last_day()
   }
 
   pub fn add_month(&self) -> Self {
