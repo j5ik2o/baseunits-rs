@@ -12,7 +12,7 @@ where
   T: TimeZone,
 {
   fn from(value: DateTime<T>) -> Self {
-    let cd = CalendarDate::from_year_with_month_with_day(value.year(), value.month(), value.day());
+    let cd = CalendarDate::from((value.year(), value.month(), value.day()));
     let tod = TimeOfDay::from_hour_with_minute(value.hour(), value.minute());
     Self::new(cd, tod)
   }
@@ -23,14 +23,8 @@ impl CalendarDateTime {
     Self { date, time }
   }
 
-  pub fn from_year_with_month_day_with_hour_with_minute(
-    year: i32,
-    month: u32,
-    day: u32,
-    hour: u32,
-    minute: u32,
-  ) -> Self {
-    let cd = CalendarDate::from_year_with_month_with_day(year, month, day);
+  pub fn from_ymd_hm(year: i32, month: u32, day: u32, hour: u32, minute: u32) -> Self {
+    let cd = CalendarDate::from((year, month, day));
     let tod = TimeOfDay::from_hour_with_minute(hour, minute);
     Self::new(cd, tod)
   }

@@ -1,6 +1,6 @@
 use crate::time::{TimeUnit, TimePoint};
 use std::cmp::Ordering;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 use crate::util::Ratio;
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
@@ -10,10 +10,18 @@ pub struct Duration {
 }
 
 impl Add for Duration {
-  type Output = Duration;
+  type Output = Self;
 
   fn add(self, rhs: Self) -> Self::Output {
     Duration::add(&self, &rhs)
+  }
+}
+
+impl Sub for Duration {
+  type Output = Self;
+
+  fn sub(self, rhs: Self) -> Self::Output {
+    Duration::subtract(&self, &rhs)
   }
 }
 

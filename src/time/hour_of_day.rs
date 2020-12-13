@@ -1,3 +1,5 @@
+use std::ops::{Add, Sub};
+
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
 pub struct HourOfDay(u32);
 
@@ -7,9 +9,26 @@ impl ToString for HourOfDay {
   }
 }
 
+impl Add for HourOfDay {
+  type Output = Self;
+
+  fn add(self, rhs: Self) -> Self::Output {
+    HourOfDay::new(self.0 + rhs.0)
+  }
+}
+
+impl Sub for HourOfDay {
+  type Output = Self;
+
+  fn sub(self, rhs: Self) -> Self::Output {
+    HourOfDay::new(self.0 - rhs.0)
+  }
+}
+
 impl HourOfDay {
   pub const MIN: u32 = 0;
   pub const MAX: u32 = 23;
+
   pub fn new(value: u32) -> Self {
     if !(HourOfDay::MIN <= value && value <= HourOfDay::MAX) {
       panic!(

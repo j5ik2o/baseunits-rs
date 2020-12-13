@@ -32,16 +32,24 @@ impl From<TimePoint> for CalendarYearMonth {
   }
 }
 
-impl CalendarYearMonth {
-  pub fn new(year: i32, month: MonthOfYear) -> Self {
-    Self { year, month }
+impl From<(i32, MonthOfYear)> for CalendarYearMonth {
+  fn from((year, month): (i32, MonthOfYear)) -> Self {
+    Self::new(year, month)
   }
+}
 
-  pub fn from_year_with_month(year: i32, month: u32) -> Self {
+impl From<(i32, u32)> for CalendarYearMonth {
+  fn from((year, month): (i32, u32)) -> Self {
     Self::new(
       year,
       MonthOfYear::from_month(Month::from_u32(month).unwrap()),
     )
+  }
+}
+
+impl CalendarYearMonth {
+  pub fn new(year: i32, month: MonthOfYear) -> Self {
+    Self { year, month }
   }
 
   pub fn breach_encapsulation_of_year(&self) -> i32 {

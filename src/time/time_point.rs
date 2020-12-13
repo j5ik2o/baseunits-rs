@@ -23,9 +23,12 @@ impl ToString for TimePoint {
   }
 }
 
-impl From<DateTime<Utc>> for TimePoint {
-  fn from(date_time: DateTime<Utc>) -> Self {
-    TimePoint::from_date_time_utc(date_time)
+impl<T> From<DateTime<T>> for TimePoint
+where
+  T: TimeZone,
+{
+  fn from(date_time: DateTime<T>) -> Self {
+    TimePoint::new(date_time.timestamp_millis())
   }
 }
 
@@ -34,31 +37,13 @@ where
   T: TimeZone,
 {
   fn from(date: Date<T>) -> Self {
-    TimePoint::from_date_tz(date)
+    TimePoint::new(date.and_hms_milli(0, 0, 0, 0).timestamp_millis())
   }
 }
 
 impl TimePoint {
   pub fn new(milliseconds_from_epoc: i64) -> Self {
     Self(milliseconds_from_epoc)
-  }
-
-  pub fn from_date_time_utc(date_time: DateTime<Utc>) -> Self {
-    Self::from_date_time_tz(date_time)
-  }
-
-  pub fn from_date_time_tz<T>(date_time: DateTime<T>) -> Self
-  where
-    T: TimeZone,
-  {
-    TimePoint::new(date_time.timestamp_millis())
-  }
-
-  pub fn from_date_tz<T>(date: Date<T>) -> Self
-  where
-    T: TimeZone,
-  {
-    TimePoint::new(date.and_hms_milli(0, 0, 0, 0).timestamp_millis())
   }
 
   pub fn at_ymd_hms_milli_utc(
@@ -145,7 +130,7 @@ impl TimePoint {
     T: TimeZone,
   {
     let date_time = DateTime::parse_from_str(date_time_str, pattern)?.with_timezone(&time_zone);
-    Ok(TimePoint::from_date_time_tz(date_time))
+    Ok(TimePoint::from(date_time))
   }
 
   // ---
@@ -226,7 +211,7 @@ impl TimePoint {
   where
     T: TimeZone,
   {
-    CalendarDate::from_time_point(self.clone(), time_zone)
+    CalendarDate::from((self.clone(), time_zone))
   }
 
   pub fn to_time_of_day_utc(&self) -> TimeOfDay {

@@ -11,7 +11,7 @@ pub enum TimeUnitType {
   Week,
   Month,
   Quarter,
-  Year = 9,
+  Year,
 }
 
 impl ToString for TimeUnitType {

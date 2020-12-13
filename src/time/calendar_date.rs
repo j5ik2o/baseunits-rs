@@ -31,7 +31,7 @@ where
   T: TimeZone,
 {
   fn from(value: DateTime<T>) -> Self {
-    let cym = CalendarYearMonth::from_year_with_month(value.year(), value.month());
+    let cym = CalendarYearMonth::from((value.year(), value.month()));
     let dom = DayOfMonth::new(value.day());
     CalendarDate::new(cym, dom)
   }
@@ -39,7 +39,30 @@ where
 
 impl From<TimePoint> for CalendarDate {
   fn from(time_point: TimePoint) -> Self {
-    Self::from_time_point_utc(time_point)
+    Self::from((time_point, Utc))
+  }
+}
+
+impl<T: TimeZone> From<(TimePoint, T)> for CalendarDate {
+  fn from((time_point, time_zone): (TimePoint, T)) -> Self {
+    let date_time = time_point.to_date_time(time_zone);
+    let cym = CalendarYearMonth::from((date_time.year(), date_time.month()));
+    let dom = DayOfMonth::new(date_time.day());
+    CalendarDate::new(cym, dom)
+  }
+}
+
+impl From<(CalendarYearMonth, DayOfMonth)> for CalendarDate {
+  fn from((year_month, day): (CalendarYearMonth, DayOfMonth)) -> Self {
+    Self::new(year_month, day)
+  }
+}
+
+impl From<(i32, u32, u32)> for CalendarDate {
+  fn from((year, month, day): (i32, u32, u32)) -> Self {
+    let cym = CalendarYearMonth::from((year, month));
+    let dom = DayOfMonth::new(day);
+    Self::new(cym, dom)
   }
 }
 
@@ -47,27 +70,6 @@ impl CalendarDate {
   /// コンストラクタ
   pub fn new(year_month: CalendarYearMonth, day: DayOfMonth) -> Self {
     Self { year_month, day }
-  }
-
-  pub fn from_year_month_with_day_of_month(year_month: CalendarYearMonth, day: DayOfMonth) -> Self {
-    Self::new(year_month, day)
-  }
-
-  pub fn from_year_with_month_with_day(year: i32, month: u32, day: u32) -> Self {
-    let cym = CalendarYearMonth::from_year_with_month(year, month);
-    let dom = DayOfMonth::new(day);
-    Self::new(cym, dom)
-  }
-
-  pub fn from_time_point_utc(time_point: TimePoint) -> Self {
-    Self::from_time_point(time_point, Utc)
-  }
-
-  pub fn from_time_point<T: TimeZone>(time_point: TimePoint, time_zone: T) -> Self {
-    let date_time = time_point.to_date_time(time_zone);
-    let cym = CalendarYearMonth::from_year_with_month(date_time.year(), date_time.month());
-    let dom = DayOfMonth::new(date_time.day());
-    CalendarDate::new(cym, dom)
   }
 
   pub fn breach_encapsulation_of_year_month(&self) -> CalendarYearMonth {
