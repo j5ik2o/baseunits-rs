@@ -1,11 +1,10 @@
-use chrono::{
-  DateTime, TimeZone, Utc, Date, ParseError, Timelike, NaiveDate, Datelike, NaiveDateTime,
-  NaiveTime,
-};
-use crate::time::duration::Duration;
-use crate::time::{CalendarDate, TimeOfDay, CalendarYearMonth, DayOfMonth};
-use num::ToPrimitive;
 use core::fmt;
+
+use chrono::*;
+use num::ToPrimitive;
+
+use crate::time::{CalendarDate, CalendarYearMonth, DayOfMonth, TimeOfDay};
+use crate::time::duration::Duration;
 
 /// TimePoint
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
@@ -19,7 +18,7 @@ impl From<i64> for TimePoint {
 
 impl ToString for TimePoint {
   fn to_string(&self) -> String {
-    Self::to_string_utc(self, "%Y/%m/%d %H:%M:%S")
+    Self::to_fmt_string_utc(self, "%Y/%m/%d %H:%M:%S")
   }
 }
 
@@ -258,7 +257,7 @@ impl TimePoint {
   }
 
   fn to_fmt_string_utc(&self, fmt: &str) -> String {
-    self.to_string(fmt, Utc)
+    self.to_fmt_string(fmt, Utc)
   }
 
   fn to_fmt_string<Tz: TimeZone>(&self, fmt: &str, time_zone: Tz) -> String
@@ -271,7 +270,19 @@ impl TimePoint {
 
 #[cfg(test)]
 mod tests {
-  use crate::time::{TimePoint, TimeOfDay};
+  use chrono::Utc;
+
+  use crate::time::{TimeOfDay, TimePoint};
+
+  #[test]
+  fn from_from_date_time() {
+    let date_time = Utc::now();
+    let tp = TimePoint::from(date_time);
+    assert_eq!(
+      tp.to_date_time_utc().timestamp_millis(),
+      date_time.timestamp_millis()
+    )
+  }
 
   #[test]
   fn _at_ymd_milli() {
