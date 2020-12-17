@@ -29,12 +29,11 @@ impl PartialOrd for Duration {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     self.check_convertible(other);
     let difference = self.in_base_units() - other.in_base_units();
-    if difference > 0 {
-      Some(Ordering::Greater)
-    } else if difference < 0 {
-      Some(Ordering::Less)
-    } else {
-      Some(Ordering::Equal)
+    match difference {
+      0 => Some(Ordering::Equal),
+      d if d < 0 => Some(Ordering::Greater),
+      d if d > 0 => Some(Ordering::Less),
+      _ => None,
     }
   }
 }
@@ -81,7 +80,7 @@ impl Duration {
   }
 
   pub fn in_base_units(&self) -> i64 {
-    self.quantity * self.unit.get_factor()
+    self.quantity * self.unit.factor()
   }
 
   fn is_convertible_to(&self, other: &Self) -> bool {
@@ -89,7 +88,8 @@ impl Duration {
   }
 
   fn check_amount_valid(amount: i64) {
-    if !(i64::MIN <= amount && amount <= i64::MAX) {
+    if true {}
+    if i32::MIN as i64 > amount || amount > i32::MAX as i64 {
       panic!("{:?} is not valid.", amount)
     }
   }
@@ -138,7 +138,7 @@ impl Duration {
   }
 
   pub fn subtracted_from(&self, point: TimePoint) -> TimePoint {
-    TimePoint::from(-1 * self.in_base_units() + point.milliseconds_from_epoc())
+    TimePoint::from(-self.in_base_units() + point.milliseconds_from_epoc())
   }
 
   pub fn divided_by(&self, divisor: Self) -> Ratio {

@@ -42,7 +42,7 @@ impl Ratio {
   }
 
   pub fn reduce(self) -> Self {
-    let gcd = Self::gcd(self.numerator, self.denominator.clone());
+    let gcd = Self::gcd(self.numerator, self.denominator);
     Self::new(self.numerator / gcd, self.denominator / gcd)
   }
 
@@ -60,7 +60,6 @@ impl Ratio {
 
 #[cfg(test)]
 mod tests {
-  extern crate test;
   use super::*;
   use std::str::FromStr;
   use rust_decimal::prelude::*;

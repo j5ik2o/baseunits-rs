@@ -3,6 +3,7 @@ use num::FromPrimitive;
 use time::Duration as OldDuration;
 
 use crate::time::{CalendarYearMonth, DayOfMonth, DayOfWeek, TimePoint};
+use std::ops::{Sub, Add};
 
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
 pub struct CalendarDate {
@@ -120,7 +121,7 @@ impl CalendarDate {
     T: TimeZone,
   {
     let date_time = self.to_date_time_on_midnight(time_zone);
-    let new_date_time = date_time + OldDuration::days(days);
+    let new_date_time = date_time.add(OldDuration::days(days));
     Self::from(new_date_time)
   }
 
@@ -129,7 +130,7 @@ impl CalendarDate {
     T: TimeZone,
   {
     let date_time = self.to_date_time_on_midnight(time_zone);
-    let new_date_time = date_time - OldDuration::days(days);
+    let new_date_time = date_time.sub(OldDuration::days(days));
     Self::from(new_date_time)
   }
 

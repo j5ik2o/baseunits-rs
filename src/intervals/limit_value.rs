@@ -19,7 +19,7 @@ impl<T: Clone + Default + PartialOrd> PartialOrd for LimitValue<T> {
         value.partial_cmp(other_value)
       }
       (LimitValue::Limit(_), _) => Some(Ordering::Greater),
-      (LimitValue::Limitless, &LimitValue::Limitless) => Some(Ordering::Equal),
+      (LimitValue::Limitless, LimitValue::Limitless) => Some(Ordering::Equal),
       (LimitValue::Limitless, _) => Some(Ordering::Less),
     }
   }

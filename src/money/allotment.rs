@@ -26,6 +26,4 @@ impl<T> Allotment<T> {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

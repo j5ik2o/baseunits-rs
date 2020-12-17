@@ -1,8 +1,8 @@
 use core::ops::Add;
 use crate::money::{Allotments, Allotment};
-use rust_fp_categories::empty::Empty;
+use rust_fp_categories::Empty;
 use std::{hash::Hash};
-use rust_fp_categories::semigroup::Semigroup;
+use rust_fp_categories::Semigroup;
 use std::collections::hash_set::{Iter, IntoIter};
 use std::collections::HashSet;
 
@@ -35,7 +35,7 @@ impl<T: Clone + Eq + Hash> Add for MoneyFan<T> {
     let all_entities = self
       .clone()
       .0
-      .combine(added.clone().0)
+      .combine(added.0.clone())
       .into_iter()
       .map(|e| e.entity)
       .collect::<HashSet<_>>();
@@ -44,13 +44,12 @@ impl<T: Clone + Eq + Hash> Add for MoneyFan<T> {
       .map(|entity| {
         let allotment = self.clone().allotment(entity.clone());
         match allotment {
-          Option::None => added.clone().allotment(entity.clone()).unwrap(),
+          Option::None => added.clone().allotment(entity).unwrap(),
           Option::Some(this_allotment) => match added.clone().allotment(entity.clone()) {
             Option::None => this_allotment,
-            Option::Some(added_allotment) => Allotment::new(
-              entity.clone(),
-              this_allotment.amount + added_allotment.amount,
-            ),
+            Option::Some(added_allotment) => {
+              Allotment::new(entity, this_allotment.amount + added_allotment.amount)
+            }
           },
         }
       })

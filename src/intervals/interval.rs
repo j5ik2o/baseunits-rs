@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::intervals::{IntervalLimit, LimitValue};
-use rust_fp_categories::empty::Empty;
+use rust_fp_categories::Empty;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -12,7 +12,7 @@ pub struct Interval<T> {
 
 impl<T: Debug + Default + Clone + PartialOrd> Default for Interval<T> {
   fn default() -> Self {
-    Interval::new(IntervalLimit::default(), IntervalLimit::default())
+    Interval::single_element(LimitValue::default())
   }
 }
 
@@ -45,7 +45,7 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Empty for Interval<T> 
 
   fn is_empty(&self) -> bool {
     match (self.upper_limit(), self.lower_limit()) {
-      (&LimitValue::Limitless, &LimitValue::Limitless) => false,
+      (LimitValue::Limitless, LimitValue::Limitless) => false,
       (..) => self.is_open() && self.upper_limit() == self.lower_limit(),
     }
   }
@@ -182,7 +182,7 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Interval<T> {
   fn greater_of_lower_limits<'a, 'b>(&'a self, other: &'b Interval<T>) -> &'a LimitValue<T>
   where
     'b: 'a,
- {
+  {
     if self.lower.value == LimitValue::Limitless {
       other.lower_limit()
     } else if other.lower.value == LimitValue::Limitless || self.lower.value >= other.lower.value {

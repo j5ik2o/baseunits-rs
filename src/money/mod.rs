@@ -1,5 +1,6 @@
 mod allotment;
 mod allotments;
+//noinspection RsExternalLinter
 mod money;
 mod money_fan;
 

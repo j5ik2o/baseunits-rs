@@ -119,7 +119,7 @@ impl TimeUnit {
     }
   }
 
-  pub(crate) fn get_factor(&self) -> i64 {
+  pub(crate) fn factor(&self) -> i64 {
     self.factor.value
   }
 

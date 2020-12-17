@@ -2,11 +2,11 @@ use std::collections::hash_set::{Iter, IntoIter};
 use std::collections::HashSet;
 use std::hash::Hash;
 
-use rust_fp_categories::empty::Empty;
-use rust_fp_categories::semigroup::Semigroup;
+use rust_fp_categories::Empty;
+use rust_fp_categories::Semigroup;
 
 use crate::money::Allotment;
-use rust_fp_categories::monoid::Monoid;
+use rust_fp_categories::Monoid;
 
 #[derive(Debug, Clone)]
 pub struct Allotments<T>(pub(crate) HashSet<Allotment<T>>);

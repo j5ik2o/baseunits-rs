@@ -17,22 +17,20 @@ impl<T: Default + Clone + PartialOrd> Default for IntervalLimit<T> {
 impl<T: Default + Clone + PartialEq + PartialOrd> PartialOrd for IntervalLimit<T> {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     match (&self.value, &other.value) {
-      (&LimitValue::<T>::Limitless, &LimitValue::<T>::Limitless) => {
+      (LimitValue::<T>::Limitless, LimitValue::<T>::Limitless) => {
         if self.lower == other.lower {
           Some(Ordering::Equal)
         } else {
           Some(self.lower_to_ordering(Ordering::Less, Ordering::Greater))
         }
       }
-      (&LimitValue::<T>::Limitless, _) => {
+      (LimitValue::<T>::Limitless, _) => {
         Some(self.lower_to_ordering(Ordering::Less, Ordering::Greater))
       }
-      (_, &LimitValue::<T>::Limitless) => {
+      (_, LimitValue::<T>::Limitless) => {
         Some(other.lower_to_ordering(Ordering::Greater, Ordering::Less))
       }
-      (&LimitValue::<T>::Limit(ref lv), &LimitValue::<T>::Limit(ref other_lv))
-        if lv == other_lv =>
-      {
+      (LimitValue::<T>::Limit(ref lv), LimitValue::<T>::Limit(ref other_lv)) if lv == other_lv => {
         match (self.lower, other.lower) {
           (l, other_l) if l == other_l => {
             if self.closed ^ other.closed {

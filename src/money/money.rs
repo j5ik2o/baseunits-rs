@@ -5,9 +5,9 @@ use std::str::FromStr;
 
 use iso_4217::CurrencyCode;
 use rust_decimal::Decimal;
-use rust_fp_categories::empty::Empty;
-use rust_fp_categories::monoid::Monoid;
-use rust_fp_categories::semigroup::Semigroup;
+use rust_fp_categories::Empty;
+use rust_fp_categories::Monoid;
+use rust_fp_categories::Semigroup;
 use rust_decimal::prelude::{FromPrimitive, Zero};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -24,7 +24,10 @@ pub enum MoneyError {
 impl Eq for Money {}
 
 impl Hash for Money {
-  fn hash<H: Hasher>(&self, state: &mut H) {
+  fn hash<H>(&self, state: &mut H)
+  where
+    H: Hasher,
+  {
     self.amount.hash(state);
     state.write_u32(self.currency.num());
   }
@@ -182,6 +185,7 @@ impl Money {
     }
   }
 
+  //noinspection RsExternalLinter
   pub fn add(self, other: Self) -> Result<Self, MoneyError> {
     if self.currency != other.currency {
       Err(MoneyError::NotSameCurrencyError)
@@ -216,49 +220,45 @@ impl Money {
 mod tests {
   use iso_4217::CurrencyCode;
   use rust_decimal::Decimal;
-  use crate::money::{Money, MoneyError};
+  use crate::money::{Money};
   use rust_decimal::prelude::{Zero, FromPrimitive};
 
   #[test]
-  fn test_eq() -> Result<(), MoneyError> {
+  fn test_eq() {
     let m1 = Money::from((1u32, CurrencyCode::USD));
     let m2 = Money::from((1u32, CurrencyCode::USD));
     assert_eq!(m1, m2);
-    Ok(())
   }
 
   #[test]
-  fn test_ne() -> Result<(), MoneyError> {
+  fn test_ne() {
     let m1 = Money::from((1u32, CurrencyCode::USD));
     let m2 = Money::from((2u32, CurrencyCode::USD));
     assert_ne!(m1, m2);
-    Ok(())
   }
 
   #[test]
-  fn test_zero() -> Result<(), MoneyError> {
+  fn test_zero() {
     let m1 = Money::zero(CurrencyCode::USD);
     let m2 = Money::new(Decimal::zero(), CurrencyCode::USD);
     assert_eq!(m1.abs(), m2);
-    Ok(())
   }
 
   #[test]
-  fn test_abs() -> Result<(), MoneyError> {
+  fn test_abs() {
     let m1 = Money::new(Decimal::from_i32(-1).unwrap(), CurrencyCode::USD);
     let m2 = Money::new(Decimal::from_i32(1).unwrap(), CurrencyCode::USD);
     assert_eq!(m1.abs(), m2);
-    Ok(())
   }
 
   #[test]
-  fn test_add() -> Result<(), MoneyError> {
+  fn test_add() {
     let m1 = Money::from((1u32, CurrencyCode::USD));
     let m2 = Money::from((2u32, CurrencyCode::USD));
     let m3 = m1.clone();
     let m4 = m2.clone();
 
-    let m5 = m1.add(m2)?;
+    let m5 = m1.add(m2).unwrap();
     let m6 = m3 + m4;
 
     assert_eq!(
@@ -269,6 +269,5 @@ mod tests {
       m6,
       Money::new(Decimal::from_i32(3).unwrap(), CurrencyCode::USD)
     );
-    Ok(())
   }
 }
