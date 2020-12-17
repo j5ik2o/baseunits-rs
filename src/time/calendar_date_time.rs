@@ -13,7 +13,7 @@ where
 {
   fn from(value: DateTime<T>) -> Self {
     let cd = CalendarDate::from((value.year(), value.month(), value.day()));
-    let tod = TimeOfDay::from_hour_with_minute(value.hour(), value.minute());
+    let tod = TimeOfDay::from((value.hour(), value.minute()));
     Self::new(cd, tod)
   }
 }
@@ -21,7 +21,7 @@ where
 impl From<(i32, u32, u32, u32, u32)> for CalendarDateTime {
   fn from((year, month, day, hour, minute): (i32, u32, u32, u32, u32)) -> Self {
     let cd = CalendarDate::from((year, month, day));
-    let tod = TimeOfDay::from_hour_with_minute(hour, minute);
+    let tod = TimeOfDay::from((hour, minute));
     Self::new(cd, tod)
   }
 }

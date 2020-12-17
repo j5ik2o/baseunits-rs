@@ -76,8 +76,16 @@ impl CalendarDate {
     &self.year_month
   }
 
+  pub fn to_year_month(&self) -> CalendarYearMonth {
+    self.year_month.clone()
+  }
+
   pub fn as_day(&self) -> &DayOfMonth {
     &self.day
+  }
+
+  pub fn to_day(&self) -> DayOfMonth {
+    self.day.clone()
   }
 
   pub fn to_date_time_on_midnight_at_utc(&self) -> DateTime<Utc> {

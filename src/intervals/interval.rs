@@ -124,8 +124,6 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Interval<T> {
   pub fn is_single_element(&self) -> bool {
     if !self.has_upper_limit() {
       false
-    } else if !self.has_lower_limit() {
-      false
     } else {
       self.upper_limit() == self.lower_limit() && !self.is_empty()
     }
@@ -176,25 +174,21 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Interval<T> {
 
   fn equal_both_limitless(&self, me: &LimitValue<T>, your: &LimitValue<T>) -> bool {
     match (me, your) {
-      (&LimitValue::Limitless, &LimitValue::Limitless) => true,
-      _ => false,
+      (LimitValue::Limitless, LimitValue::Limitless) => true,
+      (..) => false,
     }
   }
 
   fn greater_of_lower_limits<'a, 'b>(&'a self, other: &'b Interval<T>) -> &'a LimitValue<T>
   where
     'b: 'a,
-  {
+ {
     if self.lower.value == LimitValue::Limitless {
-      &other.lower.value
-    } else if other.lower.value == LimitValue::Limitless {
-      &self.lower.value
-    } else if self.lower.value == other.lower.value {
-      &self.lower.value
-    } else if self.lower.value >= other.lower.value {
-      &self.lower.value
+      other.lower_limit()
+    } else if other.lower.value == LimitValue::Limitless || self.lower.value >= other.lower.value {
+      self.lower_limit()
     } else {
-      &other.lower.value
+      other.lower_limit()
     }
   }
 
@@ -203,22 +197,16 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Interval<T> {
     'b: 'a,
   {
     if self.upper.value == LimitValue::Limitless {
-      &other.upper.value
-    } else if other.upper.value == LimitValue::Limitless {
-      &self.upper.value
-    } else if self.upper.value == other.upper.value {
-      &self.upper.value
-    } else if self.upper.value >= other.upper.value {
-      &self.upper.value
+      other.upper_limit()
+    } else if other.upper.value == LimitValue::Limitless || self.upper.value <= other.upper.value {
+      self.upper_limit()
     } else {
-      &other.upper.value
+      other.upper_limit()
     }
   }
 
   pub fn intersects(&self, other: &Self) -> bool {
     if self.equal_both_limitless(self.upper_limit(), other.upper_limit()) {
-      true
-    } else if self.equal_both_limitless(self.upper_limit(), other.upper_limit()) {
       true
     } else {
       match self
@@ -246,15 +234,15 @@ impl<T: Debug + Default + Clone + PartialEq + PartialOrd> Interval<T> {
 
   pub fn has_upper_limit(&self) -> bool {
     match self.upper_limit() {
-      &LimitValue::Limit(_) => true,
-      &LimitValue::Limitless => false,
+      LimitValue::Limit(_) => true,
+      LimitValue::Limitless => false,
     }
   }
 
   pub fn has_lower_limit(&self) -> bool {
     match self.lower_limit() {
-      &LimitValue::Limit(_) => true,
-      &LimitValue::Limitless => false,
+      LimitValue::Limit(_) => true,
+      LimitValue::Limitless => false,
     }
   }
 

@@ -98,7 +98,7 @@ impl<T: Default + Clone + PartialEq + PartialOrd> IntervalLimit<T> {
   pub fn infinity(&self) -> bool {
     match self.value {
       LimitValue::<T>::Limitless => true,
-      _ => false,
+      LimitValue::<T>::Limit(_) => false,
     }
   }
 

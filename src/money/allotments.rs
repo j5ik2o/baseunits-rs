@@ -1,4 +1,4 @@
-use std::collections::hash_set::Iter;
+use std::collections::hash_set::{Iter, IntoIter};
 use std::collections::HashSet;
 use std::hash::Hash;
 
@@ -9,7 +9,7 @@ use crate::money::Allotment;
 use rust_fp_categories::monoid::Monoid;
 
 #[derive(Debug, Clone)]
-pub struct Allotments<T>(HashSet<Allotment<T>>);
+pub struct Allotments<T>(pub(crate) HashSet<Allotment<T>>);
 
 impl<T> Empty for Allotments<T> {
   fn empty() -> Self {
@@ -38,34 +38,28 @@ impl<T: Clone + Eq + Hash> Allotments<T> {
     Self(values)
   }
 
-  pub fn negated(&self) -> Self {
+  pub fn negated(self) -> Self {
     let values = self
       .0
-      .iter()
-      .cloned()
+      .into_iter()
       .map(|e| e.negated())
       .collect::<HashSet<_>>();
     Self::new(values)
   }
 
-  pub fn filter<F>(&self, f: F) -> Self
+  pub fn filter<F>(self, f: F) -> Self
   where
     F: Fn(&Allotment<T>) -> bool,
   {
-    let values = self
-      .0
-      .iter()
-      .filter(|e| f(*e))
-      .cloned()
-      .collect::<HashSet<_>>();
+    let values = self.0.into_iter().filter(|e| f(e)).collect::<HashSet<_>>();
     Self(values)
   }
 
-  pub fn find<F>(&self, f: F) -> Option<Allotment<T>>
+  pub fn find<F>(self, f: F) -> Option<Allotment<T>>
   where
     F: Fn(&Allotment<T>) -> bool,
   {
-    self.0.iter().find(|e| f(*e)).cloned()
+    self.0.into_iter().find(|e| f(e))
   }
 
   pub fn iter(&self) -> Iter<Allotment<T>> {
@@ -73,11 +67,14 @@ impl<T: Clone + Eq + Hash> Allotments<T> {
   }
 }
 
-#[cfg(test)]
-mod tests {
+impl<T> std::iter::IntoIterator for Allotments<T> {
+  type Item = Allotment<T>;
+  type IntoIter = IntoIter<Allotment<T>>;
 
-  #[test]
-  fn it_works() {
-    assert_eq!(2 + 2, 4);
+  fn into_iter(self) -> Self::IntoIter {
+    self.0.into_iter()
   }
 }
+
+#[cfg(test)]
+mod tests {}

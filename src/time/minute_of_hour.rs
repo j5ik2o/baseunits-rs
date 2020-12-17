@@ -31,7 +31,7 @@ impl MinuteOfHour {
 
   /// コンストラクタ。
   pub fn new(value: u32) -> Self {
-    if !(MinuteOfHour::MIN <= value && value <= MinuteOfHour::MAX) {
+    if value > MinuteOfHour::MAX {
       panic!(
         "Illegal value for 60 minutes : {:?}, please use a value between 0 and 59",
         value

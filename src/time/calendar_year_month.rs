@@ -72,14 +72,13 @@ impl CalendarYearMonth {
     self.month.as_last_day()
   }
 
-  pub fn add_month(&self) -> Self {
-    let mut new_instance: CalendarYearMonth = self.clone();
-    let (new_month, overflow) = new_instance.month.add_with_overflow();
-    new_instance.month = new_month;
+  pub fn add_month(&mut self) -> &Self {
+    let (new_month, overflow) = self.month.add_with_overflow();
+    self.month = new_month;
     if overflow {
-      new_instance.year += 1;
+      self.year += 1;
     }
-    new_instance
+    self
   }
 
   pub fn parse_tz<T>(date_str: &str, pattern: &str, time_zone: T) -> Result<Self, ParseError>
@@ -95,12 +94,10 @@ impl CalendarYearMonth {
   }
 
   pub fn is_before(&self, other: &Self) -> bool {
-    if self.year < other.year {
-      true
-    } else if self.year > other.year {
-      false
-    } else {
-      self.month.is_before(&other.month)
+    match (self.year, other.year) {
+      (sy, oy) if sy < oy => true,
+      (sy, oy) if sy > oy => false,
+      _ => self.month.is_before(&other.month),
     }
   }
 }

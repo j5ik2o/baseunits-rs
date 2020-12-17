@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::ops::{Add, Sub};
 use crate::util::Ratio;
 
-#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Duration {
   quantity: i64,
   unit: TimeUnit,
@@ -25,16 +25,16 @@ impl Sub for Duration {
   }
 }
 
-impl Ord for Duration {
-  fn cmp(&self, other: &Self) -> Ordering {
+impl PartialOrd for Duration {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     self.check_convertible(other);
     let difference = self.in_base_units() - other.in_base_units();
     if difference > 0 {
-      Ordering::Greater
+      Some(Ordering::Greater)
     } else if difference < 0 {
-      Ordering::Less
+      Some(Ordering::Less)
     } else {
-      Ordering::Equal
+      Some(Ordering::Equal)
     }
   }
 }
@@ -101,7 +101,7 @@ impl Duration {
   }
 
   fn check_greater_than_or_else(&self, other: &Self) {
-    if self.cmp(&other) == Ordering::Greater {
+    if self.partial_cmp(&other) == Some(Ordering::Greater) {
       panic!("{:?} is before {:?}", self, other)
     }
   }

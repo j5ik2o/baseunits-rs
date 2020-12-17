@@ -202,15 +202,15 @@ impl TimePoint {
     NaiveDate::from_ymd(date.year(), date.month(), date.day())
   }
 
-  pub fn to_calendar_date_utc(&self) -> CalendarDate {
-    self.to_calendar_date(Utc)
+  pub fn into_calendar_date_utc(self) -> CalendarDate {
+    self.into_calendar_date(Utc)
   }
 
-  pub fn to_calendar_date<T>(&self, time_zone: T) -> CalendarDate
+  pub fn into_calendar_date<T>(self, time_zone: T) -> CalendarDate
   where
     T: TimeZone,
   {
-    CalendarDate::from((self.clone(), time_zone))
+    CalendarDate::from((self, time_zone))
   }
 
   pub fn to_time_of_day_utc(&self) -> TimeOfDay {
@@ -222,7 +222,7 @@ impl TimePoint {
     T: TimeZone,
   {
     let dt = self.to_date_time(time_zone);
-    TimeOfDay::from_hour_with_minute(dt.hour(), dt.minute())
+    TimeOfDay::from((dt.hour(), dt.minute()))
   }
 
   pub fn add(self, duration: Duration) -> Self {
@@ -253,7 +253,8 @@ impl TimePoint {
   where
     T: TimeZone,
   {
-    self.to_calendar_date(time_zone.clone()) == other.to_calendar_date(time_zone)
+    self.clone().into_calendar_date(time_zone.clone())
+      == other.clone().into_calendar_date(time_zone)
   }
 
   fn to_fmt_string_utc(&self, fmt: &str) -> String {
@@ -294,7 +295,7 @@ mod tests {
   #[test]
   fn to_time_of_day() {
     let tp1 = TimePoint::at_ymd_hms_milli_utc(2010, 1, 1, 0, 0, 0, 0);
-    let tod = TimeOfDay::from_hour_with_minute(0, 0);
+    let tod = TimeOfDay::from((0, 0));
     assert_eq!(tp1.to_time_of_day_utc(), tod)
   }
 

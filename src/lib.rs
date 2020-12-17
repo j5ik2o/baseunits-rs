@@ -1,5 +1,6 @@
 #![feature(duration_constants)]
 #![feature(test)]
+#![feature(once_cell)]
 #![allow(dead_code)]
 
 pub mod intervals;

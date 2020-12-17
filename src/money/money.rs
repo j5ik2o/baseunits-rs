@@ -42,22 +42,6 @@ impl PartialOrd for Money {
       Some(Ordering::Equal)
     }
   }
-
-  fn lt(&self, other: &Self) -> bool {
-    self.currency == other.currency && self.amount.lt(&other.amount)
-  }
-
-  fn le(&self, other: &Self) -> bool {
-    self.currency == other.currency && self.amount.le(&other.amount)
-  }
-
-  fn gt(&self, other: &Self) -> bool {
-    self.currency == other.currency && self.amount.gt(&other.amount)
-  }
-
-  fn ge(&self, other: &Self) -> bool {
-    self.currency == other.currency && self.amount.ge(&other.amount)
-  }
 }
 
 impl Empty for Money {
@@ -147,7 +131,7 @@ from_numeric_impl! {i8 i16 i32 i64 u8 u16 u32 u64}
 
 impl Money {
   pub fn new(amount: Decimal, currency: CurrencyCode) -> Self {
-    let mut a = amount.clone();
+    let mut a = amount;
 
     a.rescale(currency.digit().unwrap() as u32);
     Self {

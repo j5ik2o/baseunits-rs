@@ -15,12 +15,12 @@ impl<T: Clone + Default> Default for LimitValue<T> {
 impl<T: Clone + Default + PartialOrd> PartialOrd for LimitValue<T> {
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     match (self, other) {
-      (&LimitValue::Limit(ref value), &LimitValue::Limit(ref other_value)) => {
+      (LimitValue::Limit(ref value), LimitValue::Limit(ref other_value)) => {
         value.partial_cmp(other_value)
       }
-      (&LimitValue::Limit(_), _) => Some(Ordering::Greater),
-      (&LimitValue::Limitless, &LimitValue::Limitless) => Some(Ordering::Equal),
-      (&LimitValue::Limitless, _) => Some(Ordering::Less),
+      (LimitValue::Limit(_), _) => Some(Ordering::Greater),
+      (LimitValue::Limitless, &LimitValue::Limitless) => Some(Ordering::Equal),
+      (LimitValue::Limitless, _) => Some(Ordering::Less),
     }
   }
 }
@@ -39,9 +39,9 @@ impl<T: Clone + Default + PartialOrd> Eq for LimitValue<T> {}
 
 impl<T: Clone + Default> LimitValue<T> {
   pub fn to_value(&self) -> &T {
-    match &self {
-      &LimitValue::Limit(ref t) => t,
-      _ => panic!(""),
+    match self {
+      LimitValue::Limit(ref t) => t,
+      LimitValue::Limitless => panic!(""),
     }
   }
 
@@ -49,9 +49,9 @@ impl<T: Clone + Default> LimitValue<T> {
   where
     'b: 'a,
   {
-    match &self {
-      &LimitValue::Limit(ref t) => t,
-      _ => default,
+    match self {
+      LimitValue::Limit(ref t) => t,
+      LimitValue::Limitless => default,
     }
   }
 }

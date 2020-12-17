@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
 use chrono::{Datelike, Utc};
@@ -90,8 +89,7 @@ impl MonthOfYear {
   }
 
   pub fn from_month(month: Month) -> Self {
-    let mut hash: HashSet<MonthOfYear> = HashSet::new();
-    for e in [
+    [
       MonthOfYear::JAN,
       MonthOfYear::FEB,
       MonthOfYear::MAR,
@@ -106,10 +104,9 @@ impl MonthOfYear {
       MonthOfYear::DEC,
     ]
     .iter()
-    {
-      hash.insert(e.clone());
-    }
-    hash.iter().cloned().find(|e| e.value == month).unwrap()
+    .find(|&e| e.value == month)
+    .unwrap()
+    .clone()
   }
 
   pub fn as_value(&self) -> &Month {
@@ -147,5 +144,17 @@ impl MonthOfYear {
 
   pub fn is_before(&self, other: &Self) -> bool {
     self.value < other.value
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::time::{MonthOfYear, Month, DayOfMonth};
+
+  #[test]
+  fn test_from_month() {
+    let moy = MonthOfYear::from_month(Month::January);
+    assert_eq!(moy.value, Month::January);
+    assert_eq!(moy.last_day, DayOfMonth::new(31))
   }
 }

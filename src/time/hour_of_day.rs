@@ -30,7 +30,7 @@ impl HourOfDay {
   pub const MAX: u32 = 23;
 
   pub fn new(value: u32) -> Self {
-    if !(HourOfDay::MIN <= value && value <= HourOfDay::MAX) {
+    if value > HourOfDay::MAX {
       panic!(
         "Illegal value for 24 hour : {:}, please use a value between 0 and 23",
         value

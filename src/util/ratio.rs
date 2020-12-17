@@ -37,13 +37,13 @@ impl Ratio {
     if denominator.is_zero() {
       numerator
     } else {
-      Self::gcd(denominator.clone(), numerator % denominator.clone())
+      Self::gcd(denominator, numerator % denominator)
     }
   }
 
   pub fn reduce(self) -> Self {
-    let gcd = Self::gcd(self.numerator.clone(), self.denominator.clone());
-    Self::new(self.numerator / gcd.clone(), self.denominator / gcd)
+    let gcd = Self::gcd(self.numerator, self.denominator.clone());
+    Self::new(self.numerator / gcd, self.denominator / gcd)
   }
 
   pub fn times(self, multiplier: Self) -> Self {
